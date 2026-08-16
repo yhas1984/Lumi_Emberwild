@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { GAME } from "../data/gameConfig";
 import { Projectile } from "../entities/Projectile";
 import { emitEvent } from "../utils/events";
+import { shakeCamera } from "../utils/screenFx";
 
 // Ancient Golem: the 5-minute boss. Telegraphs its attacks, has a lot of HP,
 // multiple attack patterns and a special reward on death.
@@ -131,7 +132,7 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
   private slamAoE(px: number, py: number): void {
     const radius = 135;
     this.telegraphCircle(px, py, radius, 850, () => {
-      this.scene.cameras.main.shake(200, 0.012);
+      shakeCamera(this.scene, 200, 0.012);
       this.scene.cameras.main.flash(140, 255, 90, 90);
       if (this.onPlayerDamage) {
         const player = this.scene.children.getByName("player") as Phaser.GameObjects.GameObject & { x: number; y: number };

@@ -18,6 +18,7 @@ export class Hud {
   private coinsText: Phaser.GameObjects.Text;
   private bossBarWrap: Phaser.GameObjects.Container;
   private bossFill: Phaser.GameObjects.Image;
+  private pauseBtn: Button | null = null;
   private boundHp: (p: { current: number; max: number }) => void;
   private boundXp: (p: { level: number; xp: number; toNext: number }) => void;
   private boundEco: (p: { coins: number; gems: number }) => void;
@@ -99,12 +100,12 @@ export class Hud {
       .setDepth(61);
 
     // Pause button
-    const pauseBtn = new Button(scene, W - 44, 62, 60, 60, "❚❚", () => {
+    this.pauseBtn = new Button(scene, W - 44, 62, 60, 60, "❚❚", () => {
       if (this.onPause) {
         this.onPause();
       }
     }, { color: 0x3b4a7a, fontSize: 22, radius: 30 });
-    pauseBtn.setScrollFactor(0).setDepth(62);
+    this.pauseBtn.setScrollFactor(0).setDepth(62);
 
     // Boss bar (hidden until boss)
     this.bossBarWrap = scene.add.container(0, 0).setDepth(58).setVisible(false);
@@ -158,6 +159,13 @@ export class Hud {
   setBossHealth(current: number, max: number): void {
     const pct = max > 0 ? Math.max(0, current / max) : 0;
     this.bossFill.setDisplaySize(516 * pct, 26);
+  }
+
+  /** Visual feedback when the pause tap zone triggers. */
+  flashPauseButton(): void {
+    if (this.pauseBtn) {
+      this.scene.tweens.add({ targets: this.pauseBtn, scale: 0.85, duration: 70, yoyo: true });
+    }
   }
 
   setTimer(secondsLeft: number): void {

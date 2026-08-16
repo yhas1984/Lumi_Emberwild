@@ -94,6 +94,8 @@ export class GameManager {
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         gm.analyticsManager.endSession();
+      } else {
+        gm.analyticsManager.resumeSession();
       }
     });
     // Anonymous guest profile (local auth).

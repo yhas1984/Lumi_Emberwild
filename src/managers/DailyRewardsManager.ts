@@ -5,25 +5,7 @@ import { EconomyManager } from "./EconomyManager";
 import { LootManager } from "./LootManager";
 import { MockAnalyticsService } from "../services/AnalyticsService";
 import { emitEvent } from "../utils/events";
-
-function todayKey(d: Date = new Date()): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return y + "-" + m + "-" + day;
-}
-
-function daysBetween(aKey: string, bKey: string): number {
-  const a = new Date(aKey + "T00:00:00");
-  const b = new Date(bKey + "T00:00:00");
-  return Math.round((b.getTime() - a.getTime()) / 86400000);
-}
-
-// Seven-day login calendar with streak protection:
-//  - 0 days since last claim  -> already claimed today
-//  - 1 day                    -> normal next-day claim
-//  - 2 days (1 missed day)    -> grace: chain is preserved, no reset
-//  - 3+ days (2+ missed)      -> chain resets to day 1
+import { todayKey, computeDailyClaim } from "./dailyLogic";
 export class DailyRewardsManager {
   private save: SaveManager;
   private economy: EconomyManager;
@@ -67,19 +49,16 @@ export class DailyRewardsManager {
   claim(): DailyRewardDef | null {
     const daily = this.save.get().daily;
     const today = todayKey();
-    if (daily.lastClaimDay === today) {
+    const outcome = computeDailyClaim(daily, today);
+    if (outcome.alreadyClaimed) {
       return null;
     }
-    const diff = daily.lastClaimDay === "" ? 99 : daysBetween(daily.lastClaimDay, today);
-    if (diff >= 3) {
-      daily.streak = 0;
-    }
-    const def = DAILY_REWARDS[daily.streak % 7];
+    const def = DAILY_REWARDS[outcome.rewardIndex];
     if (!def) {
       return null;
     }
     this.grant(def);
-    daily.streak += 1;
+    daily.streak = outcome.nextStreak;
     daily.lastClaimDay = today;
     this.save.save();
     this.analytics.track("daily_claimed", { day: def.day });

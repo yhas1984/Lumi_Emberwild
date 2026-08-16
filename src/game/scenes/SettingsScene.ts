@@ -7,6 +7,7 @@ import { Button } from "../ui/Button";
 // Settings: sfx / screen shake toggles, stats link and reset save.
 export class SettingsScene extends Phaser.Scene {
   private sfxBtn!: Button;
+  private musicBtn!: Button;
   private shakeBtn!: Button;
   private resetBtn!: Button;
   private resetArmed = false;
@@ -35,10 +36,11 @@ export class SettingsScene extends Phaser.Scene {
       GameManager.instance.nav.showMenu();
     }, { color: 0x2c3a5e, fontSize: 32, radius: 38 });
 
-    this.sfxBtn = new Button(this, W / 2, 320, 420, 96, "", () => this.toggleSfx(), { color: 0x3b4a7a, fontSize: 26 });
-    this.shakeBtn = new Button(this, W / 2, 450, 420, 96, "", () => this.toggleShake(), { color: 0x3b4a7a, fontSize: 26 });
+    this.sfxBtn = new Button(this, W / 2, 300, 420, 88, "", () => this.toggleSfx(), { color: 0x3b4a7a, fontSize: 26 });
+    this.musicBtn = new Button(this, W / 2, 410, 420, 88, "", () => this.toggleMusic(), { color: 0x3b4a7a, fontSize: 26 });
+    this.shakeBtn = new Button(this, W / 2, 520, 420, 88, "", () => this.toggleShake(), { color: 0x3b4a7a, fontSize: 26 });
 
-    new Button(this, W / 2, 590, 420, 96, "📊 View Statistics", () => {
+    new Button(this, W / 2, 650, 420, 88, "📊 View Statistics", () => {
       gm.audio.play("uiClick");
       this.scene.start("Stats");
     }, { color: 0x38b26a, fontSize: 26 });
@@ -69,6 +71,16 @@ export class SettingsScene extends Phaser.Scene {
       d.settings.sfx = !d.settings.sfx;
     });
     gm.audio.setSfx(gm.save.get().settings.sfx);
+    gm.audio.play("uiClick");
+    this.refresh();
+  }
+
+  private toggleMusic(): void {
+    const gm = GameManager.instance;
+    gm.save.update((d) => {
+      d.settings.music = !d.settings.music;
+    });
+    gm.audio.setMusic(gm.save.get().settings.music);
     gm.audio.play("uiClick");
     this.refresh();
   }
@@ -104,8 +116,10 @@ export class SettingsScene extends Phaser.Scene {
   private refresh(): void {
     const settings = GameManager.instance.save.get().settings;
     this.sfxBtn.setLabel("Sound effects: " + (settings.sfx ? "ON" : "OFF"));
+    this.musicBtn.setLabel("Music: " + (settings.music ? "ON" : "OFF"));
     this.shakeBtn.setLabel("Screen shake: " + (settings.shake ? "ON" : "OFF"));
     this.sfxBtn.setColor(settings.sfx ? 0x38b26a : 0x5a5a6a);
+    this.musicBtn.setColor(settings.music ? 0x38b26a : 0x5a5a6a);
     this.shakeBtn.setColor(settings.shake ? 0x38b26a : 0x5a5a6a);
   }
 }

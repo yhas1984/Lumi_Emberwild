@@ -22,6 +22,7 @@ export class VictoryScene extends Phaser.Scene {
   create(data: { result?: RunResult }): void {
     const W = GAME.width;
     const H = GAME.height;
+    this.doubleUsed = false;
     const gm = GameManager.instance;
     if (data?.result) {
       this.result = data.result;

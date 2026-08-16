@@ -21,6 +21,11 @@ export class AudioManager {
   private ctx: AudioContext | null = null;
   private sfxOn = true;
   private unlocked = false;
+  private musicOn = true;
+  private musicGain: GainNode | null = null;
+  private musicTimer: number | null = null;
+  private musicStep = 0;
+  private readonly musicRoots = [55, 49, 43.65, 55, 58.27, 49]; // A1 G1 F1 A1 Bb1 G1
 
   setSfx(on: boolean): void {
     this.sfxOn = on;
@@ -28,6 +33,19 @@ export class AudioManager {
 
   isSfxOn(): boolean {
     return this.sfxOn;
+  }
+
+  setMusic(on: boolean): void {
+    this.musicOn = on;
+    if (!on) {
+      this.stopMusic();
+    } else if (this.unlocked && this.ctx) {
+      this.startMusic();
+    }
+  }
+
+  isMusicOn(): boolean {
+    return this.musicOn;
   }
 
   unlock(): void {
@@ -40,10 +58,66 @@ export class AudioManager {
       if (Ctor) {
         this.ctx = new Ctor();
         this.unlocked = true;
+        if (this.musicOn) {
+          this.startMusic();
+        }
       }
     } catch (err) {
       console.warn("[audio] unavailable", err);
     }
+  }
+
+  /** Soft procedural ambient loop (menu + runs). Respects settings.music. */
+  startMusic(): void {
+    if (!this.ctx || !this.musicOn || this.musicGain) {
+      return;
+    }
+    this.musicGain = this.ctx.createGain();
+    this.musicGain.gain.value = 0.14;
+    this.musicGain.connect(this.ctx.destination);
+    this.musicStep = 0;
+    this.playMusicStep();
+    this.musicTimer = window.setInterval(() => this.playMusicStep(), 2400);
+  }
+
+  stopMusic(): void {
+    if (this.musicTimer !== null) {
+      window.clearInterval(this.musicTimer);
+      this.musicTimer = null;
+    }
+    if (this.musicGain) {
+      this.musicGain.disconnect();
+      this.musicGain = null;
+    }
+  }
+
+  private playMusicStep(): void {
+    if (!this.ctx || !this.musicGain) {
+      return;
+    }
+    const root = this.musicRoots[this.musicStep % this.musicRoots.length];
+    const t = this.ctx.currentTime + 0.05;
+    this.musicPad(root, t);
+    this.musicPad(root * 1.5, t + 0.05);
+    this.musicPad(root * 2, t + 0.35);
+    this.musicStep++;
+  }
+
+  private musicPad(freq: number, when: number): void {
+    if (!this.ctx || !this.musicGain) {
+      return;
+    }
+    const osc = this.ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, when);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(0.05, when + 1.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + 2.8);
+    osc.connect(g);
+    g.connect(this.musicGain);
+    osc.start(when);
+    osc.stop(when + 3);
   }
 
   play(name: SoundName): void {

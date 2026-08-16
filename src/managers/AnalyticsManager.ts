@@ -137,6 +137,19 @@ export class AnalyticsManager {
     }
   }
 
+  /** Call when the page becomes visible again: reopens a session that ended
+   *  recently (tab switch) instead of fragmenting into a new one. */
+  resumeSession(): void {
+    const sessions = this.store.sessions;
+    const last = sessions[sessions.length - 1];
+    if (last && last.end !== null && Date.now() - last.end < SESSION_GAP_MS) {
+      last.end = null;
+      this.save();
+    } else {
+      this.startSession();
+    }
+  }
+
   /** Counts every analytics event (persisted counters + recent log). */
   recordEvent(event: string): void {
     this.store.counters[event] = (this.store.counters[event] ?? 0) + 1;

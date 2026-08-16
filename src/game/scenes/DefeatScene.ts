@@ -19,6 +19,7 @@ export class DefeatScene extends Phaser.Scene {
 
   create(data: { result?: RunResult }): void {
     const W = GAME.width;
+    this.doubleUsed = false;
     const gm = GameManager.instance;
     if (data?.result) {
       this.result = data.result;

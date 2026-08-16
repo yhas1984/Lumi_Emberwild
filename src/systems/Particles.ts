@@ -1,15 +1,34 @@
 import Phaser from "phaser";
 
-// Simple particle bursts (one-off emitters, self cleaning).
+// Pooled particle emitters: avoids creating/destroying an emitter per burst
+// (reduces GC churn during combat).
 export class Particles {
   private scene: Phaser.Scene;
+  private pool: Phaser.GameObjects.Particles.ParticleEmitter[] = [];
+  private next = 0;
+  private readonly poolSize = 12;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
   }
 
+  private acquire(): Phaser.GameObjects.Particles.ParticleEmitter {
+    const em = this.pool[this.next];
+    if (em) {
+      this.next = (this.next + 1) % this.poolSize;
+      return em;
+    }
+    const created = this.scene.add.particles(0, 0, "particle", { emitting: false });
+    created.setDepth(95);
+    this.pool.push(created);
+    this.next = (this.next + 1) % this.poolSize;
+    return created;
+  }
+
   burst(x: number, y: number, color: number, count = 8, speed = 170, size = 1): void {
-    const em = this.scene.add.particles(x, y, "particle", {
+    const em = this.acquire();
+    em.setPosition(x, y);
+    em.setConfig({
       speed: { min: speed * 0.35, max: speed },
       lifespan: { min: 240, max: 480 },
       scale: { start: size, end: 0 },
@@ -17,15 +36,13 @@ export class Particles {
       tint: [color, 0xffffff],
       emitting: false,
     });
-    em.setDepth(95);
     em.explode(count);
-    this.scene.time.delayedCall(560, () => {
-      em.destroy();
-    });
   }
 
   confetti(x: number, y: number, colors: number[]): void {
-    const em = this.scene.add.particles(x, y, "ui_dot", {
+    const em = this.acquire();
+    em.setPosition(x, y);
+    em.setConfig({
       speed: { min: 120, max: 420 },
       lifespan: { min: 500, max: 1300 },
       gravityY: 320,
@@ -35,10 +52,6 @@ export class Particles {
       rotate: { min: 0, max: 360 },
       emitting: false,
     });
-    em.setDepth(95);
     em.explode(26);
-    this.scene.time.delayedCall(1400, () => {
-      em.destroy();
-    });
   }
 }

@@ -22,6 +22,8 @@ export class MissionsScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Scene instances are reused across restarts: reset accumulated state.
+    this.rows = [];
     const W = GAME.width;
     const gm = GameManager.instance;
     gradientBg(this, 0x1c2750, 0x0d1226);

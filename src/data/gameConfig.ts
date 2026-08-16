@@ -115,5 +115,9 @@ export const BUILDINGS: Record<BuildingId, BuildingConfig> = {
 
 export function buildingCost(bId: BuildingId, currentLevel: number): number {
   const def = BUILDINGS[bId];
+  if (!def) {
+    console.warn("[config] unknown building id:", bId);
+    return 0;
+  }
   return Math.round(def.baseCost * Math.pow(def.costGrowth, currentLevel));
 }

@@ -27,6 +27,8 @@ export class SanctuaryScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Scene instances are reused across restarts: reset accumulated state.
+    this.rows = [];
     const W = GAME.width;
     const gm = GameManager.instance;
     gradientBg(this, 0x20304f, 0x0d1226);

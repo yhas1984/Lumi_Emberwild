@@ -167,8 +167,6 @@ export interface GameEvents {
   "player-health": { current: number; max: number };
   "player-xp": { level: number; xp: number; toNext: number };
   "run-timer": { seconds: number; total: number };
-  "coins-changed": { coins: number };
-  "gems-changed": { gems: number };
   "enemy-killed": { enemyId: EnemyId; elite: boolean; x: number; y: number };
   "level-up": { level: number };
   "ability-selected": { abilityId: AbilityId; level: number };

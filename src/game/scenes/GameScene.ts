@@ -13,6 +13,7 @@ import { WaveSpawner } from "../../systems/WaveSpawner";
 import { FloatingText } from "../../systems/FloatingText";
 import { Particles } from "../../systems/Particles";
 import { ChainLightning } from "../../abilities/ChainLightning";
+import { shakeCamera } from "../../utils/screenFx";
 import { createAbility } from "../../abilities";
 import type { AbilityBase } from "../../abilities/AbilityBase";
 import type { AbilityContext } from "../../abilities/types";
@@ -54,6 +55,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Scene instances are reused across restarts: reset accumulated state.
+    this.abilityInstances = new Map<AbilityId, AbilityBase>();
+    this.pendingLevelUps = 0;
+    this.paused = false;
+    this.ended = false;
+    this.bossSpawned = false;
+    this.golem = null;
     const gm = GameManager.instance;
     gm.startRun();
 
@@ -119,6 +127,16 @@ export class GameScene extends Phaser.Scene {
     >;
     this.input.keyboard!.on("keydown-P", () => this.openPause());
     this.input.keyboard!.on("keydown-ESC", () => this.openPause());
+
+    // Fixed HUD tap zone (screen-space): Phaser's hit test for scrollFactor-0
+    // objects is misaligned when the camera follows the player, so the pause
+    // button is handled by coordinates instead of an object hit test.
+    this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
+      if (p.x > GAME.width - 100 && p.y < 100 && !this.paused && this.pendingLevelUps === 0 && !this.ended) {
+        this.hud.flashPauseButton();
+        this.openPause();
+      }
+    });
 
     this.game.events.on(Phaser.Core.Events.HIDDEN, this.onHidden, this);
     this.events.on(Phaser.Scenes.Events.RESUME, this.onResumed, this);
@@ -388,7 +406,7 @@ export class GameScene extends Phaser.Scene {
     this.particles.burst(g.x, g.y, 0xff6b35, 34, 320);
     this.particles.burst(g.x, g.y, 0xffd76b, 20, 240);
     this.cameras.main.flash(300, 255, 230, 150);
-    this.cameras.main.shake(320, 0.015);
+    shakeCamera(this, 320, 0.015);
     const chestType: ChestType = Math.random() < GAME.chests.bossChestMythicChance ? "MYTHIC" : GAME.chests.bossChest;
     const chest = this.spawnChest(g.x, g.y, chestType);
     if (Math.random() < GAME.eggs.bossEggChance) {
@@ -467,7 +485,7 @@ export class GameScene extends Phaser.Scene {
     const result = gm.endRun(false, gm.run?.time ?? 0);
     gm.audio.play("defeat");
     this.particles.burst(this.player.x, this.player.y, 0xff5f7a, 26, 240);
-    this.cameras.main.shake(300, 0.01);
+    shakeCamera(this, 300, 0.01);
     this.cameras.main.fadeOut(600, 0, 0, 0);
     this.time.delayedCall(750, () => {
       this.scene.stop();
@@ -479,7 +497,7 @@ export class GameScene extends Phaser.Scene {
   private onPlayerHitEnemy(_player: Player, enemy: Enemy): void {
     this.player.takeDamage(enemy.damage, enemy.x, enemy.y);
     GameManager.instance.audio.play("hurt");
-    this.cameras.main.shake(70, 0.005);
+    shakeCamera(this, 70, 0.005);
   }
 
   private handleEnemyKilled(enemy: Enemy): void {
