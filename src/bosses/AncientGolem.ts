@@ -31,7 +31,11 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
     body.setCollideWorldBounds(true);
     body.setImmovable(true);
     const diff = GameManager.instance.currentDifficulty();
-    this.maxHealth = Math.round(GAME.boss.health * diff.bossHp);
+    // The boss scales with both the difficulty tier and the run level, so a
+    // maxed-out build still faces a real fight (not a one-shot melt).
+    const runLevel = GameManager.instance.run?.level ?? 1;
+    const levelScale = 1 + 0.1 * Math.min(Math.max(0, runLevel - 1), 30);
+    this.maxHealth = Math.round(GAME.boss.health * diff.bossHp * levelScale);
     this.health = this.maxHealth;
     this.projectiles = scene.physics.add.group();
     this.telegraphs = scene.add.graphics();

@@ -317,6 +317,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (!this.bossSpawned && seconds >= GAME.bossAt) {
+      // The boss must actually appear: drop pending picks and stop future
+      // level-up pauses, or a kill streak at 5:00 keeps interrupting forever.
+      this.pendingLevelUps = 0;
+      if (this.xp) {
+        this.xp.onLevelUp = null;
+      }
       this.spawnBoss();
     }
     if (this.golem && this.golem.active) {
