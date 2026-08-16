@@ -1,0 +1,204 @@
+/* ============================================================
+   Lumi: Wild Realms — React UI shell styles (premium mobile look)
+   ============================================================ */
+
+.shell {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  background: linear-gradient(180deg, #1c2750 0%, #0b1026 100%);
+  overflow: hidden;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.menu {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+
+.menu-title {
+  font-size: 96px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 6px;
+  text-shadow: 0 4px 0 #101426, 0 8px 24px rgba(0, 0, 0, 0.6);
+  animation: menuPulse 1.4s ease-in-out infinite;
+}
+
+.menu-sub {
+  font-size: 34px;
+  font-weight: 800;
+  color: #ffd76b;
+  letter-spacing: 10px;
+  text-shadow: 0 3px 0 #101426;
+  margin-top: 6px;
+}
+
+.menu-orb {
+  width: 150px;
+  height: 150px;
+  margin-top: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #ffe28a 30%, #ffb02e 60%, rgba(255, 176, 46, 0) 100%);
+  box-shadow: 0 0 40px 12px rgba(255, 190, 80, 0.45);
+  animation: menuPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes menuPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.menu-level {
+  margin-top: 18px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #b8c4ff;
+  text-shadow: 0 2px 0 #101426;
+}
+
+.menu-currency {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #1a2342 0%, #131a33 100%);
+  border: 2px solid #3b4a7a;
+  border-radius: 31px;
+  padding: 12px 26px;
+}
+
+.chip-icon { font-size: 26px; }
+.chip-value { font-size: 24px; font-weight: 800; color: #ffd76b; }
+.chip:last-child .chip-value { color: #5ee0f5; }
+
+.lumi-btn {
+  border: none;
+  border-radius: 26px;
+  font-family: inherit;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.06s ease;
+}
+
+.lumi-btn:active {
+  transform: scale(0.94);
+}
+
+.play-btn {
+  margin-top: 26px;
+  width: 380px;
+  height: 118px;
+  font-size: 48px;
+  letter-spacing: 4px;
+  background: linear-gradient(180deg, #ff9d5c 0%, #ff7a3d 55%, #e85f2a 100%);
+  animation: menuPulse 1.1s ease-in-out infinite;
+}
+
+.menu-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+.nav-btn {
+  width: 124px;
+  height: 104px;
+  font-size: 15px;
+  background: linear-gradient(180deg, #4a5a8c 0%, #3b4a7a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.nav-emoji { font-size: 30px; }
+
+.menu-topbar {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+}
+
+.icon-btn {
+  width: 62px;
+  height: 62px;
+  border: none;
+  border-radius: 31px;
+  font-size: 26px;
+  background: linear-gradient(180deg, #3b4a7a 0%, #2c3a5e 100%);
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* ---- Debug panel (React) ---- */
+.debug-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.debug-panel {
+  width: 520px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #141b38 0%, #0d1226 100%);
+  border: 2px solid #3b4a7a;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.debug-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffd76b;
+  margin-bottom: 6px;
+}
+
+.debug-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.debug-btn {
+  padding: 18px 10px;
+  font-size: 18px;
+  background: linear-gradient(180deg, #4a5a8c 0%, #3b4a7a 100%);
+}
+
+.debug-status {
+  font-size: 17px;
+  color: #b8c4ff;
+}
+
+.debug-close {
+  width: 220px;
+  padding: 16px;
+  font-size: 20px;
+  background: linear-gradient(180deg, #5a6a9c 0%, #4a5a8c 100%);
+}

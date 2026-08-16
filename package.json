@@ -1,0 +1,33 @@
+{
+  "name": "lumi-emberwild",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lumi: Wild Realms - survivor roguelite prototype (vertical slice)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/inline.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "standalone": "npm run build",
+    "cap:add": "cap add android",
+    "cap:sync": "npm run build && cap sync android",
+    "android": "npm run build && cap sync android && cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.0",
+    "phaser": "^3.80.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^4.7.0",
+    "puppeteer-core": "^25.7.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.10"
+  }
+}

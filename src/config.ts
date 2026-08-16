@@ -1,0 +1,65 @@
+import Phaser from "phaser";
+import { GAME } from "./data/gameConfig";
+import { BootScene } from "./game/scenes/BootScene";
+import { SplashScene } from "./game/scenes/SplashScene";
+import { GameScene } from "./game/scenes/GameScene";
+import { LevelUpScene } from "./game/scenes/LevelUpScene";
+import { PauseScene } from "./game/scenes/PauseScene";
+import { VictoryScene } from "./game/scenes/VictoryScene";
+import { DefeatScene } from "./game/scenes/DefeatScene";
+import { SanctuaryScene } from "./game/scenes/SanctuaryScene";
+import { PlaceholderScene } from "./game/scenes/PlaceholderScene";
+import { EggHatchScene } from "./game/scenes/EggHatchScene";
+import { ReviveScene } from "./game/scenes/ReviveScene";
+import { CreaturesScene } from "./game/scenes/CreaturesScene";
+import { MissionsScene } from "./game/scenes/MissionsScene";
+import { DailyRewardsScene } from "./game/scenes/DailyRewardsScene";
+import { ShopScene } from "./game/scenes/ShopScene";
+import { DebugPanelScene } from "./game/scenes/DebugPanelScene";
+import { SettingsScene } from "./game/scenes/SettingsScene";
+import { StatsScene } from "./game/scenes/StatsScene";
+
+export const GAME_CONFIG: Phaser.Types.Core.GameConfig = {
+  // Canvas renderer: maximum compatibility (WebGL can break under Brave
+  // fingerprint protection, remote desktops and virtualized environments).
+  type: Phaser.CANVAS,
+  parent: "game",
+  backgroundColor: "#0b1026",
+  width: GAME.width,
+  height: GAME.height,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  render: {
+    antialias: true,
+    roundPixels: false,
+  },
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { x: 0, y: 0 },
+      debug: false,
+    },
+  },
+  scene: [
+    BootScene,
+    SplashScene,
+    GameScene,
+    LevelUpScene,
+    PauseScene,
+    VictoryScene,
+    DefeatScene,
+    SanctuaryScene,
+    PlaceholderScene,
+    CreaturesScene,
+    MissionsScene,
+    DailyRewardsScene,
+    ShopScene,
+    EggHatchScene,
+    ReviveScene,
+    SettingsScene,
+    StatsScene,
+    DebugPanelScene,
+  ],
+};

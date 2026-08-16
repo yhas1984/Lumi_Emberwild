@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b1026" />
+    <meta name="description" content="Lumi: Emberwild - survivor roguelite prototype" />
+    <link rel="icon" href="data:," />
+    <title>Lumi: Emberwild</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0b1026;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
+      }
+      #game {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      canvas {
+        display: block;
+        touch-action: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="react-root"></div>
+    <noscript>
+      <div style="position:fixed; inset:0; z-index:9998; background:#1a0f2e; color:#ffd76b; font-family:Arial,sans-serif; font-size:20px; padding:40px; text-align:center; display:flex; align-items:center; justify-content:center;">
+        Lumi: Emberwild necesita JavaScript activado para funcionar.
+      </div>
+    </noscript>
+    <div id="boot-status" style="position:fixed; left:12px; bottom:10px; z-index:9000; color:#9fb0e0; background:rgba(10,14,32,0.75); font-family:monospace; font-size:13px; padding:4px 10px; border-radius:8px; pointer-events:none;">Lumi: esperando JavaScript…</div>
+    <script>
+      // Watchdog: if the status text never changes, scripts are being blocked.
+      setTimeout(function () {
+        var el = document.getElementById("boot-status");
+        if (el && el.style.display !== "none" && el.textContent.indexOf("esperando") !== -1) {
+          el.style.color = "#ff5f7a";
+          el.textContent = "Lumi: JavaScript no se ejecuta. Desactiva el bloqueo de scripts (Brave Shields / extensiones) para esta pagina y recarga.";
+        }
+      }, 3000);
+    </script>
+    <div id="boot-error" style="display:none; position:fixed; inset:0; z-index:9999; background:#1a0f2e; color:#ff8a8a; font-family:monospace; font-size:14px; padding:24px; white-space:pre-wrap; overflow:auto;"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
