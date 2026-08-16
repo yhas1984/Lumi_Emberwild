@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ABILITIES, abilityValue, abilityDesc, isAbilityMaxed, ABILITY_MAX_LEVEL } from "../abilities";
+import { ABILITIES, abilityValue, abilityDesc, isAbilityMaxed, allAbilitiesMaxed, ABILITY_MAX_LEVEL } from "../abilities";
+import type { AbilityId } from "../../types";
 import { ENEMIES, enemyHpScale, waveMixFor } from "../enemies";
 import { CREATURE_LIST } from "../creatures";
 import { MISSIONS } from "../missions";
@@ -31,6 +32,13 @@ describe("abilities", () => {
     expect(ABILITY_MAX_LEVEL).toBe(5);
     expect(isAbilityMaxed("fireOrb", 5)).toBe(true);
     expect(isAbilityMaxed("fireOrb", 4)).toBe(false);
+  });
+
+  it("allAbilitiesMaxed only when every ability is at 5", () => {
+    const levelOf = (id: AbilityId): number => (id === "fireOrb" ? 4 : 5);
+    expect(allAbilitiesMaxed(levelOf)).toBe(false);
+    expect(allAbilitiesMaxed(() => 5)).toBe(true);
+    expect(allAbilitiesMaxed(() => 0)).toBe(false);
   });
 });
 

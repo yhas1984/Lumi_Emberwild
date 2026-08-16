@@ -120,3 +120,8 @@ export function abilityInstance(id: AbilityId, level: number): AbilityInstance {
 export function isAbilityMaxed(id: AbilityId, level: number): boolean {
   return level >= ABILITY_MAX_LEVEL;
 }
+
+/** True when every ability in the catalog is at max level (per the given level reader). */
+export function allAbilitiesMaxed(levelOf: (id: AbilityId) => number): boolean {
+  return Object.values(ABILITIES).every((d) => isAbilityMaxed(d.id, levelOf(d.id)));
+}

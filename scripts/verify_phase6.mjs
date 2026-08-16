@@ -170,6 +170,37 @@ await section("victory robust with open level-up", async () => {
   check(result.diff === "normal" && result.unlocked === 1, "win on an already-unlocked tier: no double unlock, selection kept (" + JSON.stringify(result) + ")");
 });
 
+// ----- F) Maxed abilities: no phantom level-6 offers, no soft-lock -----
+await section("maxed abilities stop level-up offers", async () => {
+  await evalV(() => { window.__LUMI__.gm.save.update((d) => { d.account.difficulty = "normal"; }); });
+  await startRun();
+  await evalV(() => {
+    const gm = window.__LUMI__.gm;
+    const ids = ["fireOrb", "chainLightning", "windBlades", "iceAura", "multiShot", "attackSpeed", "moveSpeed", "critChance", "healing", "magnet"];
+    gm.run.abilities = new Map(ids.map((id) => [id, 5]));
+    const gs = window.__LUMI__.game.scene.getScene("Game");
+    gs.syncAbilities();
+  });
+  // A level-up with everything maxed must NOT pause the run or open the overlay.
+  await evalV(() => { const gs = window.__LUMI__.game.scene.getScene("Game"); gs.onLevelUp(2); });
+  await sleep(800);
+  const st1 = await evalV(() => ({ paused: window.__LUMI__.game.scene.isPaused("Game"), lu: window.__LUMI__.game.scene.isActive("LevelUp"), pending: window.__LUMI__.game.scene.getScene("Game").pendingLevelUps }));
+  check(!st1.paused && !st1.lu, "no level-up overlay when everything is maxed (" + JSON.stringify(st1) + ")");
+  // Safety net: even if the overlay opens with 0 offers it shows Continue, never a VI card.
+  await evalV(() => { const gs = window.__LUMI__.game.scene.getScene("Game"); gs.scene.launch("LevelUp"); });
+  await sleep(900);
+  const st2 = await evalV(() => {
+    const lu = window.__LUMI__.game.scene.getScene("LevelUp");
+    const kids = lu ? lu.children.list : [];
+    return { active: window.__LUMI__.game.scene.isActive("LevelUp"), childCount: kids.length, hasText: kids.some((c) => c.type === "Text" && String(c.text).includes("máximo")) };
+  });
+  check(st2.active && st2.childCount >= 5 && st2.hasText, "maxed overlay shows message + Continue (" + JSON.stringify(st2) + ")");
+  await page.mouse.click(360, 793); // Continue
+  await sleep(600);
+  const st3 = await evalV(() => ({ lu: window.__LUMI__.game.scene.isActive("LevelUp"), paused: window.__LUMI__.game.scene.isPaused("Game") }));
+  check(!st3.lu && !st3.paused, "Continue closes the maxed overlay and resumes (" + JSON.stringify(st3) + ")");
+});
+
 mark("--- errors (" + errors.length + ") ---");
 for (const e of errors.slice(0, 6)) mark("ERR: " + e.slice(0, 200));
 await browser.close();

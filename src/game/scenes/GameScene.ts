@@ -16,6 +16,7 @@ import { Particles } from "../../systems/Particles";
 import { ChainLightning } from "../../abilities/ChainLightning";
 import { shakeCamera } from "../../utils/screenFx";
 import { createAbility } from "../../abilities";
+import { allAbilitiesMaxed } from "../../data/abilities";
 import type { AbilityBase } from "../../abilities/AbilityBase";
 import type { AbilityContext } from "../../abilities/types";
 import { Hud } from "../ui/Hud";
@@ -377,6 +378,11 @@ export class GameScene extends Phaser.Scene {
 
   private openLevelUp(): void {
     if (this.paused || this.ended || this.pendingLevelUps <= 0) {
+      return;
+    }
+    // All powers maxed: level-ups no longer interrupt the run.
+    if (allAbilitiesMaxed((id) => GameManager.instance.abilityLevel(id))) {
+      this.pendingLevelUps = 0;
       return;
     }
     this.pendingLevelUps--;
