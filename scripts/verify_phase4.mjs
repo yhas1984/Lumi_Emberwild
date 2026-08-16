@@ -46,7 +46,7 @@ await sleep(4000);
 check(await menuActive(), "React main menu visible");
 const menuInfo = await evalV(() => {
   const shell = document.querySelector("#react-shell");
-  return { hasTitle: shell.textContent.includes("WILD REALMS"), hasPlay: !!shell.querySelector('[data-action="play"]'), navCount: shell.querySelectorAll(".nav-btn").length, gear: !!shell.querySelector('[data-action="settings"]') };
+  return { hasTitle: shell.textContent.includes("EMBERWILD"), hasPlay: !!shell.querySelector('[data-action="play"]'), navCount: shell.querySelectorAll(".nav-btn").length, gear: !!shell.querySelector('[data-action="settings"]') };
 });
 check(menuInfo.hasTitle && menuInfo.hasPlay && menuInfo.navCount === 5 && menuInfo.gear, "menu content (title, PLAY, 5 nav, gear)");
 

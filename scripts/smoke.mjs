@@ -135,7 +135,7 @@ await sleep(4000);
 const menuOk = await page.evaluate(() => {
   const shell = document.querySelector("#react-shell");
   const play = document.querySelector('#react-shell [data-action="play"]');
-  return !!(shell && play && shell.textContent.includes("WILD REALMS"));
+  return !!(shell && play && shell.textContent.includes("EMBERWILD"));
 });
 mark("react menu visible: " + menuOk);
 
