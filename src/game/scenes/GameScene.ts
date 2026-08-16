@@ -68,6 +68,7 @@ export class GameScene extends Phaser.Scene {
     this.onboarding = false;
     this.golem = null;
     this.debugHooked = false;
+    GameManager.instance.debug.golem = null;
     const gm = GameManager.instance;
     gm.startRun();
 
@@ -444,6 +445,7 @@ export class GameScene extends Phaser.Scene {
       const y = clamp(this.player.y - 430, 260, GAME.worldHeight - 260);
       this.golem = new AncientGolem(this, x, y);
       GameManager.instance.debug.golem = this.golem;
+      this.combat.boss = this.golem;
       this.golem.onDefeated = () => this.bossDefeated();
       this.golem.onPlayerDamage = (dmg) => this.player.takeDamage(dmg, this.golem!.x, this.golem!.y);
       this.golem.onSummonMinions = (x, y) => {
@@ -514,9 +516,23 @@ export class GameScene extends Phaser.Scene {
         g.destroy();
         this.golem = null;
         GameManager.instance.debug.golem = null;
+        this.combat.boss = null;
       },
     });
-    this.time.delayedCall(2400, () => this.victory());
+    // The victory transition must never be blocked by an overlay (level-up /
+    // pause / revive) or a frozen scene clock: clear pending picks, close
+    // overlays, resume, and stop granting new level-ups during the celebration.
+    this.pendingLevelUps = 0;
+    if (this.xp) {
+      this.xp.onLevelUp = null;
+    }
+    this.scene.stop("LevelUp");
+    this.scene.stop("Pause");
+    this.scene.stop("Revive");
+    if (this.scene.isPaused()) {
+      this.scene.resume();
+    }
+    this.time.delayedCall(1200, () => this.victory());
   }
 
   // ---- Run end ----
@@ -528,6 +544,13 @@ export class GameScene extends Phaser.Scene {
     const gm = GameManager.instance;
     const result = gm.endRun(true, gm.run?.time ?? 0);
     gm.audio.play("victory");
+    this.pendingLevelUps = 0;
+    this.scene.stop("LevelUp");
+    this.scene.stop("Pause");
+    this.scene.stop("Revive");
+    if (this.scene.isPaused()) {
+      this.scene.resume();
+    }
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.time.delayedCall(650, () => {
       this.scene.stop();

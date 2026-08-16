@@ -4,6 +4,7 @@ import { waveMixFor } from "../data/enemies";
 import { createEnemy } from "../enemies";
 import type { Enemy } from "../enemies/Enemy";
 import { Player } from "../entities/Player";
+import { GameManager } from "../managers/GameManager";
 import { weightedPick } from "../utils/rng";
 import { clamp, lerp } from "../utils/math";
 import type { EnemyId } from "../types";
@@ -37,15 +38,16 @@ export class WaveSpawner {
     if (this.stopped || time < this.nextSpawn) {
       return;
     }
+    const diff = GameManager.instance.currentDifficulty();
     const interval =
-      lerp(GAME.waves.startInterval, GAME.waves.endInterval, Math.min(1, minute / 4)) * 1000;
+      lerp(GAME.waves.startInterval, GAME.waves.endInterval, Math.min(1, minute / 4)) * 1000 * diff.spawnInterval;
     this.nextSpawn = time + interval;
     if (this.enemies.countActive(true) >= GAME.waves.maxEnemies) {
       return;
     }
     const mix = waveMixFor(minute);
     const id = weightedPick(Object.keys(mix) as EnemyId[], (k) => mix[k]);
-    const elite = Math.random() < GAME.waves.eliteChance;
+    const elite = Math.random() < GAME.waves.eliteChance + diff.eliteChanceAdd;
     const pos = this.edgePosition();
     const enemy = createEnemy(this.scene, pos.x, pos.y, id, minute, elite);
     this.enemies.add(enemy);

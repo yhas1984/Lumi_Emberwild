@@ -34,7 +34,8 @@ export const GAME = {
     bossIncomingSeconds: 8,
   },
   boss: {
-    health: 3200,
+    // Base boss stats; multiplied by the active difficulty tier.
+    health: 5500,
     damage: 16,
     speed: 95,
   },

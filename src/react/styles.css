@@ -114,6 +114,22 @@
   transform: scale(0.94);
 }
 
+.diff-btn {
+  margin-top: 18px;
+  width: 240px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(180deg, #1a2342 0%, #131a33 100%);
+  border: 2px solid #3b4a7a;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.diff-emoji { font-size: 24px; }
+
 .play-btn {
   margin-top: 26px;
   width: 380px;

@@ -13,6 +13,8 @@ export class CombatSystem {
   ctx: AbilityContext | null = null;
   chainLightning: ChainLightning | null = null;
   onEnemyKilled: ((enemy: Enemy) => void) | null = null;
+  /** The boss, when alive: the auto-attack treats it as a valid target. */
+  boss: { x: number; y: number } | null = null;
 
   private scene: Phaser.Scene;
   private player: Player;
@@ -59,7 +61,7 @@ export class CombatSystem {
 
   private fire(): void {
     const st = this.player.stats;
-    const target = this.nearestEnemyInRange();
+    const target = this.nearestTargetInRange();
     if (!target) {
       return;
     }
@@ -72,16 +74,23 @@ export class CombatSystem {
       const crit = Math.random() < st.critChance;
       const dmg = st.damage * (crit ? st.critMult : 1);
       const proj = new Projectile(this.scene, this.player.x, this.player.y, "proj_player", angle, st.projSpeed, dmg, true, crit);
+      // Bigger projectiles so shots (and their hits) are clearly visible.
+      if (!crit) {
+        proj.setScale(1.3);
+      }
       this.playerProjectiles.add(proj);
     }
     if (this.ctx) {
-      this.ctx.burst(this.player.x, this.player.y, 0xffb02e, 2);
+      // Muzzle flash: bright burst + a soft white bloom at the player.
+      this.ctx.burst(this.player.x, this.player.y, 0xffb02e, 4, 170, 1);
+      this.ctx.burst(this.player.x, this.player.y, 0xffffff, 2, 60, 1.8);
     }
   }
 
-  nearestEnemyInRange(): Enemy | null {
-    let best: Enemy | null = null;
-    let bestD = this.player.stats.range;
+  nearestTargetInRange(): { x: number; y: number } | null {
+    const range = this.player.stats.range;
+    let best: { x: number; y: number } | null = null;
+    let bestD = range;
     for (const child of this.enemies.getChildren()) {
       const e = child as Enemy;
       if (!e.active || e.health <= 0) {
@@ -93,12 +102,20 @@ export class CombatSystem {
         best = e;
       }
     }
+    // The boss is a first-class target: prefer it when no enemy is closer.
+    if (this.boss) {
+      const db = dist(this.player.x, this.player.y, this.boss.x, this.boss.y);
+      if (db < bestD) {
+        bestD = db;
+        best = this.boss;
+      }
+    }
     return best;
   }
 
   hitEnemy(proj: Projectile, enemy: Enemy): void {
     if (this.ctx) {
-      this.ctx.burst(proj.x, proj.y, proj.isPlayer ? 0xffb02e : 0xb14dff, 4, 130, 0.8);
+      this.ctx.burst(proj.x, proj.y, proj.isPlayer ? 0xffb02e : 0xb14dff, 7, 150, 1.1);
     }
     this.damageEnemy(enemy, proj.damage, "attack", proj.crit);
     if (enemy.health > 0 && this.chainLightning && this.ctx) {

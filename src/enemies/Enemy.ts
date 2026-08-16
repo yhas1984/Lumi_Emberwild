@@ -1,8 +1,9 @@
 import Phaser from "phaser";
 import type { EnemyDef } from "../types";
 import { enemyDmgScale, enemyHpScale } from "../data/enemies";
+import { GameManager } from "../managers/GameManager";
 
-// Data-driven enemy: behavior comes from EnemyDef (chase | sine | burst).
+// Data-driven enemy: behavior comes from EnemyDef (chase | sine | burst | ranged).
 export class Enemy extends Phaser.Physics.Arcade.Image {
   def: EnemyDef;
   maxHealth: number;
@@ -33,9 +34,11 @@ export class Enemy extends Phaser.Physics.Arcade.Image {
     body.setCollideWorldBounds(true);
     this.def = def;
     this.elite = elite;
-    this.maxHealth = Math.round(def.health * enemyHpScale(minute) * (elite ? 4 : 1));
+    // Difficulty tier multiplies every spawn (read at creation time).
+    const diff = GameManager.instance.currentDifficulty();
+    this.maxHealth = Math.round(def.health * enemyHpScale(minute) * (elite ? 4 : 1) * diff.enemyHp);
     this.health = this.maxHealth;
-    this.damage = Math.round(def.damage * enemyDmgScale(minute) * (elite ? 1.5 : 1));
+    this.damage = Math.round(def.damage * enemyDmgScale(minute) * (elite ? 1.5 : 1) * diff.enemyDmg);
     this.xpReward = def.xpReward * (elite ? 6 : 1);
     this.setDepth(10);
   }
@@ -65,6 +68,8 @@ export class Enemy extends Phaser.Physics.Arcade.Image {
     if (this.flashTween) {
       this.flashTween.destroy();
     }
+    // Hit "pop": a quick scale pulse so every blow is clearly visible.
+    this.setScale(this.elite ? 1.35 * 1.12 : 1.12);
     this.flashTween = this.scene.tweens.add({
       targets: this,
       duration: 70,
@@ -72,6 +77,7 @@ export class Enemy extends Phaser.Physics.Arcade.Image {
         if (this.health <= 0) {
           return;
         }
+        this.setScale(this.elite ? 1.35 : 1);
         if (this.scene.time.now < this.slowUntil) {
           this.setTintFill(0xa8dcff);
         } else {

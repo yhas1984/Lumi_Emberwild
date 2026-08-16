@@ -8,6 +8,7 @@ import { Button } from "../ui/Button";
 import { roundedRectTexture } from "../../utils/textureFactory";
 import { formatTime } from "../../utils/math";
 import { randInt } from "../../utils/rng";
+import { difficultyById } from "../../data/difficulty";
 
 export class VictoryScene extends Phaser.Scene {
   private result: RunResult;
@@ -16,7 +17,7 @@ export class VictoryScene extends Phaser.Scene {
 
   constructor() {
     super("Victory");
-    this.result = { victory: true, time: 0, kills: 0, coinsEarned: 0, level: 1, eggs: 0 };
+    this.result = { victory: true, time: 0, kills: 0, coinsEarned: 0, level: 1, eggs: 0, difficulty: "normal", unlockedNext: null };
   }
 
   create(data: { result?: RunResult }): void {
@@ -62,12 +63,27 @@ export class VictoryScene extends Phaser.Scene {
     const panelY = 540;
     roundedRectTexture(this, "panel_stats", 560, 300, 28, 0x1a2342, 0x131a33, 0x3b4a7a);
     this.add.image(W / 2, panelY, "panel_stats");
+    const diffName = difficultyById(result.difficulty ?? "normal");
     const rows: Array<[string, string]> = [
       ["Time survived", formatTime(result.time)],
       ["Enemies defeated", String(result.kills)],
       ["Run level", String(result.level)],
       ["Coins earned", String(result.coinsEarned)],
+      ["Difficulty", diffName.emoji + " " + diffName.name],
     ];
+    if (result.unlockedNext) {
+      const n = result.unlockedNext;
+      const nextDef = difficultyById(n.id);
+      this.add
+        .text(W / 2, 742, "🔓 ¡Nueva dificultad desbloqueada: " + nextDef.emoji + " " + n.name.toUpperCase() + "!", {
+          fontSize: "22px",
+          fontStyle: "bold",
+          color: "#69db7c",
+          stroke: "#101426",
+          strokeThickness: 5,
+        })
+        .setOrigin(0.5);
+    }
     rows.forEach((row, i) => {
       const y = panelY - 96 + i * 52;
       this.add

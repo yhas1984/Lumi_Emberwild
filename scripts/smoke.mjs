@@ -176,20 +176,20 @@ await page.evaluate(() => {
 });
 mark("boss_started: " + (await drainAndWait(() => hasLog("boss_started"), 25000)));
 
-let killed = false;
-for (let i = 0; i < 20 && !killed; i++) {
-  killed = await page.evaluate(() => {
-    const g = window.__LUMI__.gm.debug.golem;
-    if (g && g.health > 0) {
-      g.takeDamage(999999);
-      return true;
-    }
-    return false;
-  });
-  if (!killed) {
+// Wait for the golem to actually exist (level-up pauses freeze the scene
+// clock, so the spawn delay can stretch), dismissing cards meanwhile.
+let spawned = false;
+for (let i = 0; i < 60 && !spawned; i++) {
+  spawned = await page.evaluate(() => !!window.__LUMI__.gm.debug.golem);
+  if (!spawned) {
     await drainAndWait(() => cnt("level_up") <= cnt("ability_selected"), 4000);
-    await sleep(800);
+    await sleep(1000);
   }
+}
+mark("golem spawned: " + spawned);
+let killed = spawned;
+if (spawned) {
+  await page.evaluate(() => { const g = window.__LUMI__.gm.debug.golem; if (g && g.health > 0) g.takeDamage(999999); });
 }
 mark("killed=" + killed);
 mark("boss_defeated: " + (await drainAndWait(() => hasLog("boss_defeated"), 15000)));

@@ -1,11 +1,13 @@
 import Phaser from "phaser";
 import { GAME } from "../data/gameConfig";
 import { Projectile } from "../entities/Projectile";
+import { GameManager } from "../managers/GameManager";
 import { emitEvent } from "../utils/events";
 import { shakeCamera } from "../utils/screenFx";
 
 // Ancient Golem: the 5-minute boss. Telegraphs its attacks, has a lot of HP,
-// multiple attack patterns and a special reward on death.
+// multiple attack patterns and a special reward on death. Its stats scale
+// with the active difficulty tier.
 export class AncientGolem extends Phaser.Physics.Arcade.Image {
   maxHealth: number;
   health: number;
@@ -28,7 +30,8 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
     body.setCircle(52, this.width / 2 - 52, this.height / 2 - 52);
     body.setCollideWorldBounds(true);
     body.setImmovable(true);
-    this.maxHealth = GAME.boss.health;
+    const diff = GameManager.instance.currentDifficulty();
+    this.maxHealth = Math.round(GAME.boss.health * diff.bossHp);
     this.health = this.maxHealth;
     this.projectiles = scene.physics.add.group();
     this.telegraphs = scene.add.graphics();
@@ -45,7 +48,7 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
   }
 
   get damage(): number {
-    return GAME.boss.damage;
+    return Math.round(GAME.boss.damage * GameManager.instance.currentDifficulty().bossDmg);
   }
 
   takeDamage(amount: number): void {
@@ -54,9 +57,12 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
     }
     this.health -= amount;
     this.setTintFill(0xffffff);
+    // Hit "pop": a quick scale pulse on top of the current scale.
+    this.setScale(this.scaleX * 1.06);
     this.scene.time.delayedCall(70, () => {
       if (this.health > 0) {
         this.clearTint();
+        this.setScale(1);
       }
     });
     emitEvent("boss-health", { current: Math.max(0, this.health), max: this.maxHealth });

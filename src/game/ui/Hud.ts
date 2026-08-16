@@ -85,6 +85,20 @@ export class Hud {
       .setScrollFactor(0)
       .setDepth(60);
 
+    // Active difficulty label (read once: it never changes mid-run).
+    const diff = GameManager.instance.currentDifficulty();
+    scene.add
+      .text(W / 2, 100, diff.emoji + "  " + diff.name.toUpperCase(), {
+        fontSize: "17px",
+        fontStyle: "bold",
+        color: diff.color,
+        stroke: "#101426",
+        strokeThickness: 4,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(60);
+
     // Coins
     scene.add.image(W - 148, 72, "coin").setScrollFactor(0).setDepth(60);
     this.coinsText = scene.add

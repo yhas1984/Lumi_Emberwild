@@ -1,11 +1,12 @@
 import type { SaveData } from "../types";
+import { DIFFICULTIES } from "../data/difficulty";
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export function defaultSave(): SaveData {
   return {
     saveVersion: SAVE_VERSION,
-    account: { level: 1, xp: 0 },
+    account: { level: 1, xp: 0, difficulty: "normal", difficultyUnlocked: 0 },
     currency: { coins: 0, gems: 0 },
     creatures: [],
     sanctuary: { treeOfLife: 0, forge: 0, hatchery: 0, portal: 0 },
@@ -40,6 +41,18 @@ export function migrateSave(raw: Partial<SaveData>): SaveData {
   if (typeof merged.daily.streak !== "number") {
     merged.daily.streak = 0;
   }
+  // v2 -> v3: difficulty tiers. Unknown ids fall back to Normal; the unlock
+  // index is clamped to the catalog.
+  if (!DIFFICULTIES.some((d) => d.id === merged.account.difficulty)) {
+    merged.account.difficulty = "normal";
+  }
+  if (typeof merged.account.difficultyUnlocked !== "number" || Number.isNaN(merged.account.difficultyUnlocked)) {
+    merged.account.difficultyUnlocked = 0;
+  }
+  merged.account.difficultyUnlocked = Math.min(
+    Math.max(0, Math.floor(merged.account.difficultyUnlocked)),
+    DIFFICULTIES.length - 1
+  );
   merged.saveVersion = SAVE_VERSION;
   return merged;
 }

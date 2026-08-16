@@ -14,7 +14,7 @@ export class DefeatScene extends Phaser.Scene {
 
   constructor() {
     super("Defeat");
-    this.result = { victory: false, time: 0, kills: 0, coinsEarned: 0, level: 1, eggs: 0 };
+    this.result = { victory: false, time: 0, kills: 0, coinsEarned: 0, level: 1, eggs: 0, difficulty: "normal", unlockedNext: null };
   }
 
   create(data: { result?: RunResult }): void {

@@ -14,8 +14,10 @@ import type { HatchResult } from "./CreatureManager";
 import { MockAnalyticsService } from "../services/AnalyticsService";
 import { MockAdService } from "../services/AdService";
 import { MockPurchaseService } from "../services/PurchaseService";
-import type { AbilityId, RunResult } from "../types";
+import type { AbilityId, DifficultyId, RunResult } from "../types";
 import { GAME } from "../data/gameConfig";
+import { DIFFICULTIES, difficultyById } from "../data/difficulty";
+import type { DifficultyDef } from "../data/difficulty";
 import { emitEvent } from "../utils/events";
 
 export interface RunState {
@@ -141,12 +143,46 @@ export class GameManager {
     }
   }
 
+  /** The difficulty tier currently selected for runs. */
+  currentDifficulty(): DifficultyDef {
+    return difficultyById(this.save.get().account.difficulty);
+  }
+
+  /** Index of the highest unlocked tier (0 = Normal only). */
+  difficultyUnlockedIndex(): number {
+    return this.save.get().account.difficultyUnlocked;
+  }
+
   endRun(victory: boolean, time: number): RunResult {
     const run = this.run;
+    const diff = this.currentDifficulty();
     if (!run) {
-      return { victory, time: 0, kills: 0, coinsEarned: 0, level: 1, eggs: 0 };
+      return {
+        victory,
+        time: 0,
+        kills: 0,
+        coinsEarned: 0,
+        level: 1,
+        eggs: 0,
+        difficulty: diff.id,
+        unlockedNext: null,
+      };
     }
-    const baseCoins = victory ? GAME.runRewards.victoryCoins : GAME.runRewards.defeatCoins;
+    // Victory on the hardest unlocked tier unlocks (and auto-selects) the next one.
+    let unlockedNext: { id: DifficultyId; name: string } | null = null;
+    if (victory) {
+      const unlocked = this.difficultyUnlockedIndex();
+      const activeIdx = DIFFICULTIES.findIndex((d) => d.id === diff.id);
+      if (activeIdx === unlocked && unlocked < DIFFICULTIES.length - 1) {
+        const next = DIFFICULTIES[unlocked + 1];
+        unlockedNext = { id: next.id, name: next.name };
+        this.save.update((d) => {
+          d.account.difficultyUnlocked = unlocked + 1;
+          d.account.difficulty = next.id;
+        });
+      }
+    }
+    const baseCoins = (victory ? GAME.runRewards.victoryCoins : GAME.runRewards.defeatCoins) * diff.rewardMult;
     const coinsEarned = run.coinsEarned + baseCoins;
     const result: RunResult = {
       victory,
@@ -155,12 +191,15 @@ export class GameManager {
       coinsEarned,
       level: run.level,
       eggs: run.pendingEggs,
+      difficulty: diff.id,
+      unlockedNext,
     };
     this.economy.addCoins(coinsEarned);
     const xpGain = Math.floor(
-      GAME.runRewards.accountXpPerKill * run.kills +
+      (GAME.runRewards.accountXpPerKill * run.kills +
         GAME.runRewards.accountXpPerSecond * time +
-        (victory ? GAME.runRewards.accountXpPerBoss : 0)
+        (victory ? GAME.runRewards.accountXpPerBoss : 0)) *
+        diff.xpMult
     );
     this.addAccountXp(xpGain);
     this.save.update((d) => {

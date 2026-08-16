@@ -119,9 +119,11 @@ export interface ShopItemDef {
   amount?: number;
 }
 
+export type DifficultyId = "normal" | "hard" | "nightmare" | "infernal";
+
 export interface SaveData {
   saveVersion: number;
-  account: { level: number; xp: number };
+  account: { level: number; xp: number; difficulty: DifficultyId; difficultyUnlocked: number };
   currency: { coins: number; gems: number };
   creatures: CreatureInstance[];
   sanctuary: Record<BuildingId, number>;
@@ -145,6 +147,8 @@ export interface RunResult {
   coinsEarned: number;
   level: number;
   eggs: number;
+  difficulty: DifficultyId;
+  unlockedNext: { id: DifficultyId; name: string } | null;
 }
 
 export interface PlayerStats {

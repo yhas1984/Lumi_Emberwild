@@ -215,6 +215,7 @@ check((await evalV(() => window.__LUMI__.gm.creatures.getOwned().length)) >= 1, 
 // ---------- 10) Debug panel (gameplay context: F2 -> Phaser panel) ----------
 await page.mouse.click(62, 84); // back to menu first
 await drainAndWait(() => menuActive(), 8000);
+await evalV(() => { window.__LUMI__.gm.save.update((d) => { d.account.difficulty = "normal"; }); });
 await page.click('[data-action="play"]'); // enter a run so the Phaser panel applies
 await drainAndWait(() => hasLog("run_started"), 15000);
 await page.keyboard.press("F2");
