@@ -2,16 +2,7 @@ import { useEffect, useState } from "react";
 import { onEvent, offEvent } from "../utils/events";
 import { GameManager } from "../managers/GameManager";
 
-const TARGETS: Record<string, string> = {
-  sanctuary: "Sanctuary",
-  creatures: "Creatures",
-  missions: "Missions",
-  daily: "DailyRewards",
-  shop: "Shop",
-  settings: "Settings",
-};
-
-// The main menu (React). First screen of the UI migration pattern:
+// The main menu (React). Meta screens render in the shell via nav.showScreen.
 // reads managers directly, subscribes to bus events, navigates via GameManager.nav.
 export function MainMenu() {
   const gm = GameManager.instance;
@@ -75,7 +66,7 @@ export function MainMenu() {
             data-action={n.action}
             onClick={() => {
               gm.audio.play("uiClick");
-              gm.nav.showScene(TARGETS[n.action]);
+              gm.nav.showScreen(n.action);
             }}
           >
             <span className="nav-emoji">{n.emoji}</span>
@@ -89,7 +80,7 @@ export function MainMenu() {
           data-action="settings"
           onClick={() => {
             gm.audio.play("uiClick");
-            gm.nav.showScene("Settings");
+            gm.nav.showScreen("settings");
           }}
         >
           ⚙️

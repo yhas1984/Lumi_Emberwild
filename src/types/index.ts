@@ -186,5 +186,6 @@ export interface GameEvents {
   "debug-spawn-boss": Record<string, never>;
   "debug-spawn-chest": Record<string, never>;
   "shell-visible": { visible: boolean };
+  "screen-change": { screen: string | null };
   "debug-panel-toggle": Record<string, never>;
 }

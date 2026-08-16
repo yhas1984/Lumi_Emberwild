@@ -18,6 +18,7 @@ page.on("console", (m) => { logs.push(m.type() + ": " + m.text()); if (m.type() 
 page.on("pageerror", (e) => errors.push("PAGEERROR: " + e.message));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const sceneActive = (key) => page.evaluate((k) => { try { return window.__LUMI__.game.scene.isActive(k); } catch { return false; } }, key);
+const screenShown = (name) => page.evaluate((n) => !!document.querySelector('#react-shell [data-screen="' + n + '"]'), name);
 const menuActive = () => page.evaluate(() => !!document.querySelector('#react-shell [data-action="play"]'));
 const evalV = (fn) => page.evaluate(fn);
 async function waitScene(key, ms) {
@@ -49,7 +50,7 @@ check(bootMetrics.d1 === "pending", "D1 retention pending (fresh install)");
 
 // ---------- 2) Settings + Stats ----------
 await page.click('[data-action="settings"]'); // gear
-check(await waitScene("Settings", 8000), "settings scene");
+check(await waitFor(() => screenShown("settings"), 8000), "settings screen (React)");
 const sfxBefore = await evalV(() => window.__LUMI__.gm.save.get().settings.sfx);
 await page.mouse.click(360, 320); // toggle sfx
 await sleep(800);
@@ -58,7 +59,7 @@ check(sfxAfter !== sfxBefore, "sfx toggle works (" + sfxBefore + " -> " + sfxAft
 await page.mouse.click(360, 320); // restore
 await sleep(500);
 await page.mouse.click(360, 650); // View Statistics
-check(await waitScene("Stats", 8000), "stats scene");
+check(await waitFor(() => screenShown("stats"), 8000), "stats screen (React)");
 const statsShown = await evalV(() => {
   const m = window.__LUMI__.gm.analyticsManager.metrics();
   return { sessions: m.sessionCount, events: window.__LUMI__.gm.analyticsManager.recentEvents(3).length };
@@ -94,7 +95,7 @@ check(await menuActive(), "menu after defeat");
 
 // ---------- 4) Bonus chest in shop ----------
 await page.click('[data-action="shop"]'); // Shop nav
-check(await waitScene("Shop", 8000), "shop scene");
+check(await waitFor(() => screenShown("shop"), 8000), "shop screen (React)");
 const coinsBefore = await evalV(() => window.__LUMI__.gm.economy.coins);
 const adsBefore = await evalV(() => window.__LUMI__.gm.analyticsManager.metrics().adsWatched);
 await page.mouse.click(520, 794); // bonus chest WATCH AD
@@ -115,7 +116,7 @@ check(content.stag && content.sprite, "MYTHIC + new creatures defined");
 await page.mouse.click(62, 84); // back
 check(await waitFor(() => menuActive(), 8000), "menu");
 await page.click('[data-action="missions"]'); // Missions nav
-check(await waitScene("Missions", 8000), "missions grid scene");
+check(await waitFor(() => screenShown("missions"), 8000), "missions grid screen (React)");
 
 // ---------- 6) Persistence across reload ----------
 const persist = await evalV(() => {

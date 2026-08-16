@@ -7,17 +7,10 @@ import { LevelUpScene } from "./game/scenes/LevelUpScene";
 import { PauseScene } from "./game/scenes/PauseScene";
 import { VictoryScene } from "./game/scenes/VictoryScene";
 import { DefeatScene } from "./game/scenes/DefeatScene";
-import { SanctuaryScene } from "./game/scenes/SanctuaryScene";
 import { PlaceholderScene } from "./game/scenes/PlaceholderScene";
 import { EggHatchScene } from "./game/scenes/EggHatchScene";
 import { ReviveScene } from "./game/scenes/ReviveScene";
-import { CreaturesScene } from "./game/scenes/CreaturesScene";
-import { MissionsScene } from "./game/scenes/MissionsScene";
-import { DailyRewardsScene } from "./game/scenes/DailyRewardsScene";
-import { ShopScene } from "./game/scenes/ShopScene";
 import { DebugPanelScene } from "./game/scenes/DebugPanelScene";
-import { SettingsScene } from "./game/scenes/SettingsScene";
-import { StatsScene } from "./game/scenes/StatsScene";
 
 export const GAME_CONFIG: Phaser.Types.Core.GameConfig = {
   // Canvas renderer: maximum compatibility (WebGL can break under Brave
@@ -50,16 +43,9 @@ export const GAME_CONFIG: Phaser.Types.Core.GameConfig = {
     PauseScene,
     VictoryScene,
     DefeatScene,
-    SanctuaryScene,
     PlaceholderScene,
-    CreaturesScene,
-    MissionsScene,
-    DailyRewardsScene,
-    ShopScene,
     EggHatchScene,
     ReviveScene,
-    SettingsScene,
-    StatsScene,
     DebugPanelScene,
   ],
 };

@@ -202,3 +202,132 @@
   font-size: 20px;
   background: linear-gradient(180deg, #5a6a9c 0%, #4a5a8c 100%);
 }
+
+/* ---- Meta screens (React) ---- */
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.screen-title {
+  position: absolute;
+  top: 96px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 50px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 4px;
+  text-shadow: 0 4px 0 #101426, 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.screen-sub {
+  position: absolute;
+  top: 182px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #b8c4ff;
+  text-shadow: 0 2px 0 #101426;
+}
+
+.screen-h2 {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffd76b;
+  text-shadow: 0 3px 0 #101426;
+  letter-spacing: 2px;
+}
+
+.back-btn {
+  position: absolute;
+  left: 24px;
+  top: 46px;
+  width: 76px;
+  height: 76px;
+  border: none;
+  border-radius: 38px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(180deg, #3b4a7a 0%, #2c3a5e 100%);
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  z-index: 10;
+}
+
+.panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, #1a2342 0%, #131a33 100%);
+  border: 2px solid #3b4a7a;
+  border-radius: 22px;
+}
+
+.chip-abs {
+  flex-direction: row;
+  border-radius: 32px;
+}
+
+.st-bold {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.st-dim {
+  font-size: 16px;
+  color: #8fa3d9;
+}
+
+.screen-btn {
+  border: none;
+  border-radius: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.screen-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.screen-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.screen-btn.green { background: linear-gradient(180deg, #46c77e 0%, #38b26a 100%); }
+.screen-btn.orange { background: linear-gradient(180deg, #ffc95c 0%, #ffb02e 100%); }
+.screen-btn.blue { background: linear-gradient(180deg, #4a5a8c 0%, #3b4a7a 100%); }
+.screen-btn.red { background: linear-gradient(180deg, #d95f5f 0%, #c94f4f 100%); }
+
+.screen-scroll {
+  position: absolute;
+  top: 190px;
+  left: 60px;
+  right: 60px;
+  bottom: 30px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(59, 74, 122, 0.35);
+}

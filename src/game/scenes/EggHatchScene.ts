@@ -207,6 +207,13 @@ export class EggHatchScene extends Phaser.Scene {
 
   private finish(): void {
     GameManager.instance.audio.play("uiClick");
-    this.scene.stop();
+    // Opened from a React meta screen (e.g. the shop): return to that screen.
+    const nav = GameManager.instance.nav;
+    const ret = nav.consumeOverlayReturn();
+    if (ret) {
+      nav.showScreen(ret);
+    } else {
+      this.scene.stop();
+    }
   }
 }

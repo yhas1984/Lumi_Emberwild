@@ -22,6 +22,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const hasLog = (n) => logs.some((l) => l.includes(n));
 const cnt = (n) => logs.filter((l) => l.includes(n)).length;
 const sceneActive = (key) => page.evaluate((k) => { try { return window.__LUMI__.game.scene.isActive(k); } catch { return false; } }, key);
+const screenShown = (name) => page.evaluate((n) => !!document.querySelector('#react-shell [data-screen="' + n + '"]'), name);
 const menuActive = () => page.evaluate(() => !!document.querySelector('#react-shell [data-action="play"]'));
 const evalV = (fn) => page.evaluate(fn);
 const obtainedEvents = () => evalV(() => window.__LUMI__.gm.analytics.getBuffer().filter((e) => e.event === "creature_obtained").length);
@@ -138,7 +139,7 @@ await evalV(() => { window.__LUMI__.gm.save.update((d) => { d.statistics.totalKi
 await page.mouse.click(360, 1160); // Main Menu
 await drainAndWait(() => menuActive(), 8000);
 await page.click('[data-action="missions"]'); // Missions nav
-check(await drainAndWait(() => sceneActive("Missions"), 8000), "missions scene");
+check(await drainAndWait(() => screenShown("missions"), 8000), "missions scene (React)");
 await page.mouse.click(200, 356); // claim kill_100 (grid card 0,0)
 await sleep(1500);
 const coinsAfterMission = await evalV(() => window.__LUMI__.gm.economy.coins);
@@ -148,7 +149,7 @@ check(coinsAfterMission >= coinsAfterDouble + 150, "mission claim granted 150 co
 await page.mouse.click(62, 84); // back
 await drainAndWait(() => menuActive(), 8000);
 await page.click('[data-action="daily"]'); // Daily nav
-check(await drainAndWait(() => sceneActive("DailyRewards"), 8000), "daily rewards scene");
+check(await drainAndWait(() => screenShown("daily"), 8000), "daily rewards screen (React)");
 const coinsBeforeDaily = await evalV(() => window.__LUMI__.gm.economy.coins);
 await page.mouse.click(360, 640); // CLAIM
 await sleep(1500);
@@ -167,7 +168,7 @@ await evalV(() => {
   d.lastClaimDay = key;
 });
 await page.click('[data-action="daily"]'); // Daily nav again
-check(await drainAndWait(() => sceneActive("DailyRewards"), 8000), "daily re-entered");
+check(await drainAndWait(() => screenShown("daily"), 8000), "daily re-entered (React)");
 // The first click after a scene restart can be swallowed by Phaser: retry.
 let streakAfterGrace = await evalV(() => window.__LUMI__.gm.save.get().daily.streak);
 for (let i = 0; i < 5 && streakAfterGrace < 2; i++) {
@@ -181,7 +182,7 @@ check(streakAfterGrace >= 2, "grace day kept the chain (streak=" + streakAfterGr
 await page.mouse.click(62, 84); // back
 await drainAndWait(() => menuActive(), 8000);
 await page.click('[data-action="shop"]'); // Shop nav
-check(await drainAndWait(() => sceneActive("Shop"), 8000), "shop scene");
+check(await drainAndWait(() => screenShown("shop"), 8000), "shop screen (React)");
 await evalV(() => { window.__LUMI__.gm.economy.addGems(200); });
 await sleep(800);
 const obtainedBeforeShop = await obtainedEvents();
@@ -192,6 +193,7 @@ await drainEggs("shop");
 await pollUntil(() => obtainedEvents(), (n) => n >= obtainedBeforeShop + 1, 30000, "shop egg hatched a creature");
 await evalV(() => { try { if (window.__LUMI__.game.scene.isActive("EggHatch")) window.__LUMI__.game.scene.stop("EggHatch"); } catch {} });
 const coinsBeforePouch = await evalV(() => window.__LUMI__.gm.economy.coins);
+check(await drainAndWait(() => screenShown("shop"), 8000), "back on shop screen after egg hatch");
 await page.mouse.click(570, 550); // buy coin pouch
 await sleep(1500);
 const coinsAfterPouch = await evalV(() => window.__LUMI__.gm.economy.coins);
@@ -201,13 +203,13 @@ check(coinsAfterPouch === coinsBeforePouch + 1000, "coin pouch granted 1000");
 await page.mouse.click(62, 84);
 await drainAndWait(() => menuActive(), 8000);
 await page.click('[data-action="creatures"]');
-check(await drainAndWait(() => sceneActive("Creatures"), 8000), "creatures gallery");
+check(await drainAndWait(() => screenShown("creatures"), 8000), "creatures gallery (React)");
 
 // ---------- 9) Sanctuary shows creatures ----------
 await page.mouse.click(62, 84);
 await drainAndWait(() => menuActive(), 8000);
 await page.click('[data-action="sanctuary"]');
-check(await drainAndWait(() => sceneActive("Sanctuary"), 8000), "sanctuary scene");
+check(await drainAndWait(() => screenShown("sanctuary"), 8000), "sanctuary screen (React)");
 check((await evalV(() => window.__LUMI__.gm.creatures.getOwned().length)) >= 1, "sanctuary sees creatures");
 
 // ---------- 10) Debug panel (gameplay context: F2 -> Phaser panel) ----------

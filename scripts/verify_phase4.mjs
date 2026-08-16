@@ -18,6 +18,7 @@ page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 page.on("pageerror", (e) => errors.push("PAGEERROR: " + e.message));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const sceneActive = (key) => page.evaluate((k) => { try { return window.__LUMI__.game.scene.isActive(k); } catch { return false; } }, key);
+const screenShown = (name) => page.evaluate((n) => !!document.querySelector('#react-shell [data-screen="' + n + '"]'), name);
 const evalV = (fn) => page.evaluate(fn);
 const menuActive = () => page.evaluate(() => !!document.querySelector('#react-shell [data-action="play"]'));
 async function waitFor(fn, ms) { const s = Date.now(); let v = await fn(); while (Date.now() - s < ms && !v) { await sleep(800); v = await fn(); } return v; }
@@ -58,10 +59,10 @@ async function backToMenu() {
   }
   return menuActive();
 }
-for (const [action, scene] of [["sanctuary", "Sanctuary"], ["creatures", "Creatures"], ["missions", "Missions"], ["daily", "DailyRewards"], ["shop", "Shop"], ["settings", "Settings"]]) {
+for (const [action, screen] of [["sanctuary", "sanctuary"], ["creatures", "creatures"], ["missions", "missions"], ["daily", "daily"], ["shop", "shop"], ["settings", "settings"]]) {
   await page.click('[data-action="' + action + '"]');
-  check(await waitFor(() => sceneActive(scene), 8000), "nav " + action + " -> " + scene);
-  check(await backToMenu(), "back to React menu from " + scene);
+  check(await waitFor(() => screenShown(screen), 8000), "nav " + action + " -> " + screen);
+  check(await backToMenu(), "back to React menu from " + screen);
 }
 
 // ---------- 3) F2 debug panel in the menu (React) ----------

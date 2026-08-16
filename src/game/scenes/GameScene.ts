@@ -67,6 +67,7 @@ export class GameScene extends Phaser.Scene {
     this.bossSpawned = false;
     this.onboarding = false;
     this.golem = null;
+    this.debugHooked = false;
     const gm = GameManager.instance;
     gm.startRun();
 
@@ -165,12 +166,18 @@ export class GameScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(152);
-      const go = new Button(this, W / 2, H / 2 + 165, 280, 84, "¡Vamos!", () => {
-        localStorage.setItem("lumi_onboarded", "1");
-        this.onboarding = false;
-        dim.destroy();
-      }, { color: 0xff7a3d, fontSize: 30 });
-      go.setScrollFactor(0).setDepth(153);
+      this.add
+        .text(W / 2, H / 2 + 180, "Toca para continuar", {
+          fontSize: "22px",
+          fontStyle: "bold",
+          color: "#ffd76b",
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(152);
+      // Screen-space dismissal: scrollFactor-0 objects misalign input under
+      // a scrolled camera, so any tap on the overlay continues.
+      this.input.on("pointerdown", this.dismissOnboarding, this);
     }
 
     this.physics.add.overlap(this.player, this.enemies, (p, e) => {
@@ -192,7 +199,7 @@ export class GameScene extends Phaser.Scene {
     // objects is misaligned when the camera follows the player, so the pause
     // button is handled by coordinates instead of an object hit test.
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
-      if (p.x > GAME.width - 100 && p.y < 100 && !this.paused && this.pendingLevelUps === 0 && !this.ended) {
+      if (p.x > GAME.width - 100 && p.y < 100 && !this.paused && !this.onboarding && this.pendingLevelUps === 0 && !this.ended) {
         this.hud.flashPauseButton();
         this.openPause();
       }
@@ -526,6 +533,18 @@ export class GameScene extends Phaser.Scene {
       this.scene.stop();
       this.scene.start("Victory", { result });
     });
+  }
+
+  private dismissOnboarding(): void {
+    if (!this.onboarding) {
+      return;
+    }
+    localStorage.setItem("lumi_onboarded", "1");
+    this.onboarding = false;
+    const overlayDepth = (c: Phaser.GameObjects.GameObject): number => (c as { depth?: number }).depth ?? 0;
+    this.children.list.filter((c) => overlayDepth(c) >= 150).forEach((c) => c.destroy());
+    this.input.off("pointerdown", this.dismissOnboarding, this);
+    this.particles.burst(this.player.x, this.player.y, 0xffd76b, 14, 220);
   }
 
   private playerDied(): void {
