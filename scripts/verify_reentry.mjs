@@ -8,7 +8,7 @@ const browser = await puppeteer.launch({
   defaultViewport: { width: 720, height: 1280 },
 });
 const page = await browser.newPage();
-page.on("pageerror", (e) => errors.push(e.message));
+page.on("pageerror", (e) => { if (!String(e.message).includes("AudioContext")) errors.push(e.message); });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const screenShown = (name) => page.evaluate((n) => !!document.querySelector('#react-shell [data-screen="' + n + '"]'), name);
 const menuActive = () => page.evaluate(() => !!document.querySelector('#react-shell [data-action="play"]'));

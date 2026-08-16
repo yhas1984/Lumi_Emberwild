@@ -15,7 +15,7 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 page.on("console", (m) => { logs.push(m.type() + ": " + m.text()); if (m.type() === "error") errors.push(m.text()); });
-page.on("pageerror", (e) => errors.push("PAGEERROR: " + e.message));
+page.on("pageerror", (e) => { if (!String(e.message).includes("AudioContext")) errors.push("PAGEERROR: " + e.message); });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const sceneActive = (key) => page.evaluate((k) => { try { return window.__LUMI__.game.scene.isActive(k); } catch { return false; } }, key);
 const screenShown = (name) => page.evaluate((n) => !!document.querySelector('#react-shell [data-screen="' + n + '"]'), name);

@@ -89,7 +89,7 @@ export class DefeatScene extends Phaser.Scene {
 
     new Button(this, W / 2, yCursor, 340, 74, "Sanctuary", () => {
       gm.audio.play("uiClick");
-      GameManager.instance.nav.showScene("Sanctuary");
+      GameManager.instance.nav.showScreen("sanctuary");
     }, { color: 0x4a5a8c, fontSize: 26 });
     yCursor += 82;
 

@@ -12,6 +12,19 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 720x1280 design space, FIT-scaled to the viewport (mirrors the canvas). */
+.shell-stage {
+  width: 720px;
+  height: 1280px;
+  position: relative;
+  overflow: hidden;
+  transform-origin: center;
+  flex: none;
 }
 
 .menu {
@@ -221,6 +234,35 @@
   color: #ffffff;
   letter-spacing: 4px;
   text-shadow: 0 4px 0 #101426, 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 5;
+}
+
+/* Readable backdrop behind the fixed title/back while content scrolls. */
+.screen-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 190px;
+  z-index: 4;
+  background: linear-gradient(180deg, rgba(11, 16, 38, 0.95) 0%, rgba(11, 16, 38, 0) 100%);
+  pointer-events: none;
+}
+
+/* Scrollable content area; the stage keeps the 720x1280 coordinate space. */
+.screen-body {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  z-index: 1;
+  scrollbar-width: thin;
+}
+
+.screen-stage {
+  position: relative;
+  width: 720px;
 }
 
 .screen-sub {
@@ -233,6 +275,7 @@
   font-weight: 700;
   color: #b8c4ff;
   text-shadow: 0 2px 0 #101426;
+  z-index: 5;
 }
 
 .screen-h2 {
@@ -261,7 +304,7 @@
   background: linear-gradient(180deg, #3b4a7a 0%, #2c3a5e 100%);
   cursor: pointer;
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
-  z-index: 10;
+  z-index: 6;
 }
 
 .panel {

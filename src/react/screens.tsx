@@ -38,11 +38,13 @@ function Screen({
   screen,
   title,
   sub,
+  stageHeight = 1280,
   children,
 }: {
   screen: string;
   title: string;
   sub?: string;
+  stageHeight?: number;
   children: ReactNode;
 }) {
   const gm = GameManager.instance;
@@ -58,9 +60,14 @@ function Screen({
       >
         ←
       </button>
+      <div className="screen-header" />
       <div className="screen-title">{title}</div>
       {sub !== undefined && <div className="screen-sub">{sub}</div>}
-      {children}
+      <div className="screen-body">
+        <div className="screen-stage" style={{ height: stageHeight }}>
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
@@ -112,7 +119,7 @@ function SanctuaryScreen() {
   };
 
   return (
-    <Screen screen="sanctuary" title="SANCTUARY">
+    <Screen screen="sanctuary" title="SANCTUARY" stageHeight={1240}>
       <CurrencyChip x={80} y={178} icon="🪙" value={coins} color="#ffd76b" />
       <CurrencyChip x={380} y={178} icon="💎" value={gems} color="#5ee0f5" />
       <div style={{ position: "absolute", left: 110, top: 292, fontSize: 44 }}>🐾</div>
@@ -207,7 +214,7 @@ function CreaturesScreen() {
   useBusEvents("save-changed,creature-obtained");
   const owned = gm.creatures.getOwned();
   return (
-    <Screen screen="creatures" title="CREATURES" sub={owned.length + " / " + CREATURE_LIST.length + " found"}>
+    <Screen screen="creatures" title="CREATURES" sub={owned.length + " / " + CREATURE_LIST.length + " found"} stageHeight={1680}>
       {CREATURE_LIST.map((def, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
@@ -278,7 +285,7 @@ function MissionsScreen() {
     }
   };
   return (
-    <Screen screen="missions" title="MISSIONS">
+    <Screen screen="missions" title="MISSIONS" stageHeight={1420}>
       {defs.map((def, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
@@ -347,7 +354,7 @@ function DailyScreen() {
     }
   };
   return (
-    <Screen screen="daily" title="DAILY REWARDS" sub={"Day " + dayNumber + " of 7  ·  login streak protected"}>
+    <Screen screen="daily" title="DAILY REWARDS" sub={"Day " + dayNumber + " of 7  ·  login streak protected"} stageHeight={900}>
       {DAILY_REWARDS.map((def, i) => {
         const x = 72 + i * 96;
         const isClaimed = i + 1 < dayNumber;
@@ -456,7 +463,7 @@ function ShopScreen() {
   };
 
   return (
-    <Screen screen="shop" title="SHOP">
+    <Screen screen="shop" title="SHOP" stageHeight={920}>
       <div className="panel chip-abs" style={{ left: 240, top: 190, width: 240, height: 60 }}>
         <span style={{ fontSize: 26, marginLeft: 20 }}>💎</span>
         <span className="chip-value" style={{ color: "#5ee0f5", marginLeft: 12 }}>
@@ -555,7 +562,7 @@ function SettingsScreen() {
   ];
   const user = gm.auth.getUser();
   return (
-    <Screen screen="settings" title="SETTINGS">
+    <Screen screen="settings" title="SETTINGS" stageHeight={980}>
       {rows.map((r) => (
         <button
           key={r.key}

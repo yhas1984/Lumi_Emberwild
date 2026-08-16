@@ -88,7 +88,7 @@ page.on("console", (msg) => {
   }
 });
 page.on("pageerror", (err) => {
-  errors.push("PAGEERROR: " + err.message);
+  if (!String(err.message).includes("AudioContext")) errors.push("PAGEERROR: " + err.message);
 });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

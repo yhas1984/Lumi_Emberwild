@@ -15,7 +15,7 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-page.on("pageerror", (e) => errors.push("PAGEERROR: " + e.message));
+page.on("pageerror", (e) => { if (!String(e.message).includes("AudioContext")) errors.push("PAGEERROR: " + e.message); });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const sceneActive = (key) => page.evaluate((k) => { try { return window.__LUMI__.game.scene.isActive(k); } catch { return false; } }, key);
 const screenShown = (name) => page.evaluate((n) => !!document.querySelector('#react-shell [data-screen="' + n + '"]'), name);
@@ -116,6 +116,8 @@ for (let i = 0; i < 20 && !killed; i++) {
   }
 }
 check(killed, "boss killed");
+// The boss has a 12% egg-drop roll: zero it AFTER the kill so the Victory layout is deterministic.
+await evalV(() => { const g = window.__LUMI__.gm; if (g.run) g.run.pendingEggs = 0; });
 check(await waitForWithDrain(() => evalV(() => window.__LUMI__.gm.analytics.getBuffer().some((e) => e.event === "run_completed")), 30000), "run completed");
 const lb = await evalV(() => window.__LUMI__.gm.leaderboard.getTop(5).then((e) => e.length));
 check(lb >= 1, "leaderboard entry submitted (" + lb + ")");

@@ -6,12 +6,31 @@ import { DebugPanel } from "./DebugPanel";
 import { ScreenRouter } from "./screens";
 import "./styles.css";
 
+// Design space of the UI (mirrors GAME.width/height). The shell is scaled
+// with FIT (like the Phaser canvas) so every screen fits any phone.
+const DESIGN_W = 720;
+const DESIGN_H = 1280;
+
+function useFitScale(): number {
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const onResize = (): void => {
+      setScale(Math.min(window.innerWidth / DESIGN_W, window.innerHeight / DESIGN_H));
+    };
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return scale;
+}
+
 // React UI shell: renders the meta menus above the Phaser canvas.
 // Visibility is driven by the NavigationManager (shell-visible events).
 export function App() {
   const [visible, setVisible] = useState(false);
   const [screen, setScreen] = useState<string | null>(null);
   const [debugOpen, setDebugOpen] = useState(false);
+  const scale = useFitScale();
 
   useEffect(() => {
     const onShell = (p: { visible: boolean }): void => setVisible(p.visible);
@@ -36,7 +55,9 @@ export function App() {
       className="shell"
       onPointerDown={() => GameManager.instance.audio.unlock()}
     >
-      {screen === null ? <MainMenu /> : <ScreenRouter screen={screen} />}
+      <div className="shell-stage" style={{ transform: "scale(" + scale + ")" }}>
+        {screen === null ? <MainMenu /> : <ScreenRouter screen={screen} />}
+      </div>
       {debugOpen && <DebugPanel onClose={() => setDebugOpen(false)} />}
     </div>
   );

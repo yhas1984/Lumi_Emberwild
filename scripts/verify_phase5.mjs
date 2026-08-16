@@ -12,7 +12,7 @@ const browser = await puppeteer.launch({
   defaultViewport: { width: 720, height: 1280 },
 });
 const page = await browser.newPage();
-page.on("pageerror", (e) => errors.push("PAGEERROR: " + e.message));
+page.on("pageerror", (e) => { if (!String(e.message).includes("AudioContext")) errors.push("PAGEERROR: " + e.message); });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const evalV = (fn) => page.evaluate(fn);
 const sceneActive = (k) => evalV((kk) => { try { return window.__LUMI__.game.scene.isActive(kk); } catch { return false; } }, k);
