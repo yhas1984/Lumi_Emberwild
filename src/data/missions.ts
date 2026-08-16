@@ -12,4 +12,8 @@ export const MISSIONS: MissionDef[] = [
   { id: "chests_5", title: "Chest Collector", description: "Open 5 chests", goal: 5, stat: "totalChests", reward: { gems: 25 } },
   { id: "boss_3", title: "Golem Hunter", description: "Defeat 3 bosses", goal: 3, stat: "totalBosses", reward: { coins: 500 } },
   { id: "survive_5", title: "Survivor V", description: "Survive a full 5-minute run", goal: 300, stat: "bestTime", reward: { coins: 400 } },
+  { id: "kill_1000", title: "Warden", description: "Defeat 1000 enemies", goal: 1000, stat: "totalKills", reward: { coins: 1000 } },
+  { id: "boss_5", title: "Golem Crusher", description: "Defeat 5 bosses", goal: 5, stat: "totalBosses", reward: { gems: 50 } },
+  { id: "runs_25", title: "Veteran", description: "Complete 25 runs", goal: 25, stat: "totalRuns", reward: { gems: 25 } },
+  { id: "chests_10", title: "Hoarder", description: "Open 10 chests", goal: 10, stat: "totalChests", reward: { gems: 40 } },
 ];

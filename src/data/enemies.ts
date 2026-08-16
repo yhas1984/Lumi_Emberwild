@@ -49,9 +49,33 @@ export const ENEMIES: Record<EnemyId, EnemyDef> = {
     behavior: "burst",
     coins: [2, 3],
   },
+  spitter: {
+    id: "spitter",
+    name: "Spitter",
+    color: 0x6bd6a0,
+    radius: 17,
+    health: 20,
+    damage: 7,
+    speed: 60,
+    xpReward: 4,
+    behavior: "ranged",
+    coins: [1, 2],
+  },
+  mimic: {
+    id: "mimic",
+    name: "Mimic",
+    color: 0x7a6f9e,
+    radius: 13,
+    health: 10,
+    damage: 5,
+    speed: 150,
+    xpReward: 2,
+    behavior: "chase",
+    coins: [1, 2],
+  },
 };
 
-export const ENEMY_IDS: EnemyId[] = ["slime", "bat", "spider", "wolf"];
+export const ENEMY_IDS: EnemyId[] = ["slime", "bat", "spider", "wolf", "spitter", "mimic"];
 
 export function enemyHpScale(minute: number): number {
   return 1 + 0.18 * minute;
@@ -63,11 +87,11 @@ export function enemyDmgScale(minute: number): number {
 
 // Enemy mix weights per elapsed minute (index 0 = minute 0..1, last = 4+).
 export const WAVE_MIX: Array<Record<EnemyId, number>> = [
-  { slime: 5, bat: 3, spider: 1, wolf: 0 },
-  { slime: 4, bat: 4, spider: 2, wolf: 1 },
-  { slime: 3, bat: 4, spider: 3, wolf: 2 },
-  { slime: 2, bat: 4, spider: 3, wolf: 3 },
-  { slime: 2, bat: 3, spider: 4, wolf: 4 },
+  { slime: 5, bat: 3, spider: 1, wolf: 0, spitter: 0, mimic: 0 },
+  { slime: 4, bat: 4, spider: 2, wolf: 1, spitter: 1, mimic: 1 },
+  { slime: 3, bat: 4, spider: 3, wolf: 2, spitter: 2, mimic: 2 },
+  { slime: 2, bat: 4, spider: 3, wolf: 3, spitter: 2, mimic: 3 },
+  { slime: 2, bat: 3, spider: 4, wolf: 4, spitter: 3, mimic: 4 },
 ];
 
 export function waveMixFor(minute: number): Record<EnemyId, number> {

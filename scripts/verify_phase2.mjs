@@ -73,6 +73,7 @@ check(!!(await page.$("canvas")), "canvas present");
 check(await menuActive(), "main menu active (React)");
 
 // ---------- 2) Run + revive ----------
+await page.evaluate(() => localStorage.setItem("lumi_onboarded", "1"));
 await page.click('[data-action="play"]');
 check(await drainAndWait(() => hasLog("run_started"), 15000), "run started");
 await drainAndWait(() => cnt("ability_selected") >= 1, 25000);
@@ -167,9 +168,13 @@ await evalV(() => {
 });
 await page.click('[data-action="daily"]'); // Daily nav again
 check(await drainAndWait(() => sceneActive("DailyRewards"), 8000), "daily re-entered");
-await page.mouse.click(360, 640); // CLAIM (grace)
-await sleep(1500);
-const streakAfterGrace = await evalV(() => window.__LUMI__.gm.save.get().daily.streak);
+// The first click after a scene restart can be swallowed by Phaser: retry.
+let streakAfterGrace = await evalV(() => window.__LUMI__.gm.save.get().daily.streak);
+for (let i = 0; i < 5 && streakAfterGrace < 2; i++) {
+  await page.mouse.click(360, 640); // CLAIM (grace)
+  await sleep(900);
+  streakAfterGrace = await evalV(() => window.__LUMI__.gm.save.get().daily.streak);
+}
 check(streakAfterGrace >= 2, "grace day kept the chain (streak=" + streakAfterGrace + ")");
 
 // ---------- 7) Shop ----------

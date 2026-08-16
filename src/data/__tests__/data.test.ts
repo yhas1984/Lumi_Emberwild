@@ -6,6 +6,7 @@ import { MISSIONS } from "../missions";
 import { DAILY_REWARDS } from "../dailyRewards";
 import { CHEST_LOOT } from "../lootTables";
 import { BUILDINGS, buildingCost, GAME } from "../gameConfig";
+import type { BuildingId, ChestType, EnemyId } from "../../types";
 
 describe("abilities", () => {
   it("every ability has exactly 5 levels per stat", () => {
@@ -35,7 +36,8 @@ describe("abilities", () => {
 
 describe("enemies", () => {
   it("definitions exist for all ids", () => {
-    for (const key of ["slime", "bat", "spider", "wolf"]) {
+    const ids: EnemyId[] = ["slime", "bat", "spider", "wolf", "spitter", "mimic"];
+    for (const key of ids) {
       expect(ENEMIES[key]).toBeDefined();
     }
   });
@@ -86,7 +88,8 @@ describe("daily rewards", () => {
 
 describe("loot tables", () => {
   it("has all chest types with positive weights", () => {
-    for (const type of ["WOODEN", "SILVER", "GOLD", "MYTHIC"]) {
+    const types: ChestType[] = ["WOODEN", "SILVER", "GOLD", "MYTHIC"];
+    for (const type of types) {
       expect(CHEST_LOOT[type]).toBeDefined();
       for (const entry of CHEST_LOOT[type]) {
         expect(entry.weight).toBeGreaterThan(0);
@@ -108,7 +111,8 @@ describe("game config", () => {
   });
 
   it("all four buildings defined", () => {
-    for (const key of ["treeOfLife", "forge", "hatchery", "portal"]) {
+    const ids: BuildingId[] = ["treeOfLife", "forge", "hatchery", "portal"];
+    for (const key of ids) {
       expect(BUILDINGS[key]).toBeDefined();
     }
   });

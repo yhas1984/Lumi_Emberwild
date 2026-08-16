@@ -6,6 +6,7 @@ import { Projectile } from "../../entities/Projectile";
 import { Pickup } from "../../entities/Pickup";
 import { Chest } from "../../entities/Chest";
 import type { Enemy } from "../../enemies/Enemy";
+import { Slime } from "../../enemies/Slime";
 import { AncientGolem } from "../../bosses/AncientGolem";
 import { CombatSystem } from "../../systems/CombatSystem";
 import { XPSystem } from "../../systems/XPSystem";
@@ -18,6 +19,7 @@ import { createAbility } from "../../abilities";
 import type { AbilityBase } from "../../abilities/AbilityBase";
 import type { AbilityContext } from "../../abilities/types";
 import { Hud } from "../ui/Hud";
+import { Button } from "../ui/Button";
 import { Joystick } from "../ui/Joystick";
 import { emitEvent, onEvent, offEvent } from "../../utils/events";
 import { randInt } from "../../utils/rng";
@@ -30,6 +32,7 @@ export class GameScene extends Phaser.Scene {
   private enemies!: Phaser.Physics.Arcade.Group;
   private playerProjectiles!: Phaser.Physics.Arcade.Group;
   private pickups!: Phaser.Physics.Arcade.Group;
+  private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   private combat!: CombatSystem;
   private xp!: XPSystem;
   private waves!: WaveSpawner;
@@ -44,6 +47,7 @@ export class GameScene extends Phaser.Scene {
   private paused = false;
   private ended = false;
   private bossSpawned = false;
+  private onboarding = false;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private onReviveResult: (p: { accepted: boolean }) => void = () => {};
   private onDebugLevelUp: () => void = () => {};
@@ -61,6 +65,7 @@ export class GameScene extends Phaser.Scene {
     this.paused = false;
     this.ended = false;
     this.bossSpawned = false;
+    this.onboarding = false;
     this.golem = null;
     const gm = GameManager.instance;
     gm.startRun();
@@ -95,6 +100,17 @@ export class GameScene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
     this.playerProjectiles = this.physics.add.group();
     this.pickups = this.physics.add.group();
+    this.enemyProjectiles = this.physics.add.group();
+
+    // Ranged enemies fire projectiles at the player.
+    this.physics.add.overlap(this.player, this.enemyProjectiles, (_p, projObj) => {
+      const proj = projObj as Projectile;
+      if (this.player.stats.health > 0) {
+        this.player.takeDamage(proj.damage, proj.x, proj.y);
+      }
+      this.particles.burst(proj.x, proj.y, 0xb14dff, 4, 120);
+      proj.destroy();
+    });
 
     this.floatingText = new FloatingText(this);
     this.particles = new Particles(this);
@@ -110,8 +126,52 @@ export class GameScene extends Phaser.Scene {
     this.xp.onLevelUp = (level) => this.onLevelUp(level);
 
     this.waves = new WaveSpawner(this, this.enemies, this.player);
-    this.waves.onEnemySpawned = (e) => this.combat.registerEnemy(e);
+    this.waves.onEnemySpawned = (e) => {
+      this.combat.registerEnemy(e);
+      if (e.def.behavior === "ranged") {
+        e.onFireProjectile = (x, y, angle) => {
+          const proj = new Projectile(this, x, y, "proj_enemy", angle, 220, e.damage, false);
+          this.enemyProjectiles.add(proj);
+        };
+      }
+    };
     this.waves.start();
+
+    // First-run onboarding overlay (persisted per browser).
+    if (!localStorage.getItem("lumi_onboarded")) {
+      this.onboarding = true;
+      const W = GAME.width;
+      const H = GAME.height;
+      const dim = this.add.rectangle(W / 2, H / 2, W, H, 0x070a18, 0.82).setScrollFactor(0).setDepth(150);
+      this.add.rectangle(W / 2, H / 2, 620, 520, 0x1a2342, 1).setScrollFactor(0).setDepth(151);
+      this.add
+        .text(W / 2, H / 2 - 170, "¡Bienvenida, Lumi!", {
+          fontSize: "40px",
+          fontStyle: "bold",
+          color: "#ffd76b",
+          stroke: "#101426",
+          strokeThickness: 6,
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(152);
+      this.add
+        .text(W / 2, H / 2 - 60, "Muévete con WASD / flechas (joystick en móvil).\n¡Tu ataque es automático!\n\nSobrevive 5 minutos, recoge XP,\nelige mejoras y derrota al Ancient Golem.", {
+          fontSize: "24px",
+          color: "#e8ecff",
+          align: "center",
+          lineSpacing: 10,
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(152);
+      const go = new Button(this, W / 2, H / 2 + 165, 280, 84, "¡Vamos!", () => {
+        localStorage.setItem("lumi_onboarded", "1");
+        this.onboarding = false;
+        dim.destroy();
+      }, { color: 0xff7a3d, fontSize: 30 });
+      go.setScrollFactor(0).setDepth(153);
+    }
 
     this.physics.add.overlap(this.player, this.enemies, (p, e) => {
       this.onPlayerHitEnemy(p as Player, e as Enemy);
@@ -182,7 +242,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
-    if (this.ended || this.paused) {
+    if (this.ended || this.paused || this.onboarding) {
       return;
     }
     const gm = GameManager.instance;
@@ -231,6 +291,12 @@ export class GameScene extends Phaser.Scene {
       const p = child as Pickup;
       if (p.active) {
         p.update(time, delta, this.player.x, this.player.y, this.player.stats.magnet);
+      }
+    }
+    for (const child of this.enemyProjectiles.getChildren()) {
+      const p = child as Projectile;
+      if (p.active) {
+        p.update(time, delta);
       }
     }
     this.player.update(time, delta);
@@ -290,6 +356,9 @@ export class GameScene extends Phaser.Scene {
   // ---- Level up flow ----
   private onLevelUp(level: number, count = 1): void {
     const gm = GameManager.instance;
+    if ("vibrate" in navigator) {
+      navigator.vibrate(60);
+    }
     this.pendingLevelUps += count;
     gm.analytics.track("level_up", { level });
     this.floatingText.add(this.player.x, this.player.y - 60, "LEVEL UP!", 0xffd76b, 34);
@@ -370,6 +439,15 @@ export class GameScene extends Phaser.Scene {
       GameManager.instance.debug.golem = this.golem;
       this.golem.onDefeated = () => this.bossDefeated();
       this.golem.onPlayerDamage = (dmg) => this.player.takeDamage(dmg, this.golem!.x, this.golem!.y);
+      this.golem.onSummonMinions = (x, y) => {
+        for (let i = 0; i < 3; i++) {
+          const ex = clamp(x + randInt(-40, 40), 60, GAME.worldWidth - 60);
+          const ey = clamp(y + randInt(-40, 40), 60, GAME.worldHeight - 60);
+          const minion = new Slime(this, ex, ey, Math.floor(gm.run?.time ?? 0) / 60, false);
+          this.enemies.add(minion);
+          this.combat.registerEnemy(minion);
+        }
+      };
       this.physics.add.overlap(this.player, this.golem, () => {
         if (this.player.stats.health > 0) {
           this.player.takeDamage(this.golem!.damage, this.golem!.x, this.golem!.y);
@@ -498,6 +576,9 @@ export class GameScene extends Phaser.Scene {
     this.player.takeDamage(enemy.damage, enemy.x, enemy.y);
     GameManager.instance.audio.play("hurt");
     shakeCamera(this, 70, 0.005);
+    if ("vibrate" in navigator) {
+      navigator.vibrate(30);
+    }
   }
 
   private handleEnemyKilled(enemy: Enemy): void {

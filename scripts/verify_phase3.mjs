@@ -57,7 +57,7 @@ const sfxAfter = await evalV(() => window.__LUMI__.gm.save.get().settings.sfx);
 check(sfxAfter !== sfxBefore, "sfx toggle works (" + sfxBefore + " -> " + sfxAfter + ")");
 await page.mouse.click(360, 320); // restore
 await sleep(500);
-await page.mouse.click(360, 590); // View Statistics
+await page.mouse.click(360, 650); // View Statistics
 check(await waitScene("Stats", 8000), "stats scene");
 const statsShown = await evalV(() => {
   const m = window.__LUMI__.gm.analyticsManager.metrics();
@@ -68,6 +68,7 @@ await page.mouse.click(62, 84); // back to menu
 check(await waitFor(() => menuActive(), 8000), "back to menu from stats");
 
 // ---------- 3) Run counters ----------
+await page.evaluate(() => localStorage.setItem("lumi_onboarded", "1"));
 await page.click('[data-action="play"]'); // PLAY
 check(await waitFor(() => evalV(() => (window.__LUMI__.gm.analyticsManager.metrics().runStarts) >= 1), 15000), "run_started counted");
 // deterministic death -> give up -> defeat
@@ -109,7 +110,7 @@ const content = await evalV(() => ({
   stag: !!window.__LUMI__.gm.creatures.getDef("celestialStag"),
   sprite: !!window.__LUMI__.gm.creatures.getDef("forestSprite"),
 }));
-check(content.missions === 9, "9 missions defined (got " + content.missions + ")");
+check(content.missions === 13, "13 missions defined (got " + content.missions + ")");
 check(content.stag && content.sprite, "MYTHIC + new creatures defined");
 await page.mouse.click(62, 84); // back
 check(await waitFor(() => menuActive(), 8000), "menu");

@@ -179,6 +179,35 @@ function drawEnemies(scene: Phaser.Scene): void {
         circle(ctx, c + r * 0.38, c - r * 0.25, r * 0.08, "#22242c");
       },
     },
+    spitter: {
+      radius: 18,
+      draw: (ctx, c, r) => {
+        circle(ctx, c, c, r, "#6bd6a0");
+        ellipse(ctx, c - r * 0.3, c - r * 0.35, r * 0.35, r * 0.22, "rgba(255,255,255,0.35)");
+        drawEyes(ctx, c, c - r * 0.1, r * 0.3, r * 0.18, "#1c5c33");
+        ctx.strokeStyle = "#2f8a63";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(c, c + r * 0.45, r * 0.28, 0.1, Math.PI - 0.1);
+        ctx.stroke();
+      },
+    },
+    mimic: {
+      radius: 14,
+      draw: (ctx, c, r) => {
+        circle(ctx, c, c, r, "#7a6f9e");
+        ellipse(ctx, c - r * 0.3, c - r * 0.4, r * 0.4, r * 0.28, "rgba(255,255,255,0.3)");
+        circle(ctx, c - r * 0.4, c - r * 0.15, r * 0.3, "#ffffff");
+        circle(ctx, c + r * 0.4, c - r * 0.15, r * 0.3, "#ffffff");
+        circle(ctx, c - r * 0.4, c - r * 0.15, r * 0.16, "#2a2140");
+        circle(ctx, c + r * 0.4, c - r * 0.15, r * 0.16, "#2a2140");
+        ctx.strokeStyle = "#4c4468";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(c, c + r * 0.5, r * 0.3, 0.15, Math.PI - 0.15);
+        ctx.stroke();
+      },
+    },
   };
 
   for (const key of Object.keys(defs)) {

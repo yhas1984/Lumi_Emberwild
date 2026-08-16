@@ -92,6 +92,7 @@ const authInfo = await evalV(() => {
 check(authInfo.authed && authInfo.id.startsWith("plr-"), "anonymous auth profile (" + authInfo.id + ")");
 
 // ---------- 5) Run -> leaderboard + cloud save ----------
+await page.evaluate(() => localStorage.setItem("lumi_onboarded", "1"));
 await page.click('[data-action="play"]');
 check(await waitFor(() => evalV(() => !!window.__LUMI__.gm.run), 15000), "run started via React PLAY");
 // fast-forward boss + kill

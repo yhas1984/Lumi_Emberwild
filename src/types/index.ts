@@ -16,7 +16,7 @@ export type AbilityId =
   | "healing"
   | "magnet";
 
-export type EnemyId = "slime" | "bat" | "spider" | "wolf";
+export type EnemyId = "slime" | "bat" | "spider" | "wolf" | "spitter" | "mimic";
 
 export type BuildingId = "treeOfLife" | "forge" | "hatchery" | "portal";
 
@@ -52,7 +52,7 @@ export interface EnemyDef {
   damage: number;
   speed: number;
   xpReward: number;
-  behavior: "chase" | "sine" | "burst";
+  behavior: "chase" | "sine" | "burst" | "ranged";
   coins: [number, number];
 }
 

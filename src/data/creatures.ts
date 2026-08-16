@@ -66,6 +66,30 @@ export const CREATURES: Record<string, CreatureDef> = {
     description: "XP gained +6%.",
     passiveBonus: { stat: "xpPct", value: 0.06 },
   },
+  stormHawk: {
+    id: "stormHawk",
+    name: "Storm Hawk",
+    emoji: "🦅",
+    rarity: "EPIC",
+    description: "Movement speed +7%.",
+    passiveBonus: { stat: "moveSpeedPct", value: 0.07 },
+  },
+  lavaSnail: {
+    id: "lavaSnail",
+    name: "Lava Snail",
+    emoji: "🐌",
+    rarity: "RARE",
+    description: "Max health +6%.",
+    passiveBonus: { stat: "maxHealthPct", value: 0.06 },
+  },
+  nightOwl: {
+    id: "nightOwl",
+    name: "Night Owl",
+    emoji: "🦉",
+    rarity: "LEGENDARY",
+    description: "Critical chance +8%.",
+    passiveBonus: { stat: "critChanceFlat", value: 0.08 },
+  },
 };
 
 export const CREATURE_LIST: CreatureDef[] = Object.values(CREATURES);

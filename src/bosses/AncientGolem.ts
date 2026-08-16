@@ -11,6 +11,7 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
   health: number;
   onDefeated: (() => void) | null = null;
   onPlayerDamage: ((damage: number) => void) | null = null;
+  onSummonMinions: ((x: number, y: number) => void) | null = null;
 
   private telegraphs: Phaser.GameObjects.Graphics;
   projectiles: Phaser.Physics.Arcade.Group;
@@ -108,14 +109,25 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
   }
 
   private cast(time: number, px: number, py: number): void {
-    const roll = Math.floor(time / 100) % (this.phase >= 1 ? 3 : 2);
+    const roll = Math.floor(time / 100) % (this.phase >= 1 ? 4 : 2);
     if (roll === 0) {
       this.radialBurst();
     } else if (roll === 1) {
       this.slamAoE(px, py);
-    } else {
+    } else if (roll === 2) {
       this.chargeDash(px, py);
+    } else {
+      this.summonMinions();
     }
+  }
+
+  private summonMinions(): void {
+    this.flashRing(this.x, this.y, 130, 0xb06bff);
+    this.scene.time.delayedCall(500, () => {
+      if (this.health > 0 && this.onSummonMinions) {
+        this.onSummonMinions(this.x, this.y);
+      }
+    });
   }
 
   private radialBurst(): void {

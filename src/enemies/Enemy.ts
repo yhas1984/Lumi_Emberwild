@@ -11,12 +11,14 @@ export class Enemy extends Phaser.Physics.Arcade.Image {
   damage: number;
   xpReward: number;
   onKilled: ((enemy: Enemy) => void) | null = null;
+  onFireProjectile: ((x: number, y: number, angle: number) => void) | null = null;
 
   slowFactor = 1;
   slowUntil = 0;
 
   private sinePhase = Math.random() * Math.PI * 2;
   private burstUntil = 0;
+  private nextShot = 0;
   private flashTween: Phaser.Tweens.Tween | null = null;
 
   constructor(scene: Phaser.Scene, x: number, y: number, def: EnemyDef, minute: number, elite: boolean) {
@@ -113,6 +115,23 @@ export class Enemy extends Phaser.Physics.Arcade.Image {
         body.setVelocity(Math.cos(ang) * effSpeed * 1.9, Math.sin(ang) * effSpeed * 1.9);
       } else {
         body.setVelocity(Math.cos(ang) * effSpeed * 0.4, Math.sin(ang) * effSpeed * 0.4);
+      }
+    } else if (this.def.behavior === "ranged") {
+      // Keep distance and spit slow projectiles at the player.
+      const ang = Math.atan2(dy, dx);
+      const distToPlayer = Math.sqrt(dx * dx + dy * dy);
+      if (distToPlayer < 230) {
+        body.setVelocity(-Math.cos(ang) * effSpeed, -Math.sin(ang) * effSpeed);
+      } else if (distToPlayer > 300) {
+        body.setVelocity(Math.cos(ang) * effSpeed, Math.sin(ang) * effSpeed);
+      } else {
+        this.sinePhase += delta / 600;
+        const perp = Math.sin(this.sinePhase) * 0.9;
+        body.setVelocity(-Math.sin(ang) * effSpeed * perp, Math.cos(ang) * effSpeed * perp);
+      }
+      if (time >= this.nextShot && this.onFireProjectile) {
+        this.nextShot = time + 2200;
+        this.onFireProjectile(this.x, this.y, ang);
       }
     } else {
       const ang = Math.atan2(dy, dx);
