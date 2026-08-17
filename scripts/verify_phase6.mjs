@@ -73,7 +73,7 @@ await section("victory unlocks difficulty", async () => {
   check(await waitGolem(), "golem spawns");
   const hpNormal = await evalV(() => window.__LUMI__.gm.debug.golem.maxHealth);
   const lvlA = await evalV(() => window.__LUMI__.gm.run.level);
-  const expA = Math.round(5500 * (1 + 0.1 * Math.min(Math.max(0, lvlA - 1), 30)));
+  const expA = Math.round(5500 * (1 + 0.28 * Math.min(Math.max(0, lvlA - 1), 30)));
   check(hpNormal === expA, "normal boss HP scales with run level (got " + hpNormal + ", expected " + expA + ")");
   await evalV(() => { const go = window.__LUMI__.gm.debug.golem; go.health = 1; go.takeDamage(2); });
   let vic = false;
@@ -121,10 +121,11 @@ await section("boss HP scales with difficulty", async () => {
   check(await waitGolem(), "golem spawns (hard)");
   const hpHard = await evalV(() => window.__LUMI__.gm.debug.golem.maxHealth);
   const lvlC = await evalV(() => window.__LUMI__.gm.run.level);
-  const expC = Math.round(5500 * 2.2 * (1 + 0.1 * Math.min(Math.max(0, lvlC - 1), 30)));
+  const expC = Math.round(5500 * 2.2 * (1 + 0.28 * Math.min(Math.max(0, lvlC - 1), 30)));
   check(hpHard === expC, "hard boss HP = 5500x2.2xlevel (got " + hpHard + ", expected " + expC + ")");
   const dmg = await evalV(() => window.__LUMI__.gm.debug.golem.damage);
-  check(dmg === Math.round(16 * 1.3), "hard boss damage scaled (got " + dmg + ")");
+  const expD = Math.round(16 * 1.3 * (1 + 0.08 * Math.min(Math.max(0, lvlC - 1), 30)));
+  check(dmg === expD, "hard boss damage scaled (got " + dmg + ", expected " + expD + ")");
 });
 
 // ----- D) Auto-attack targets the boss -----

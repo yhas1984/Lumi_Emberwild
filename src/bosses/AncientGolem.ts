@@ -31,12 +31,13 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
     body.setCollideWorldBounds(true);
     body.setImmovable(true);
     const diff = GameManager.instance.currentDifficulty();
-    // The boss scales with both the difficulty tier and the run level, so a
-    // maxed-out build still faces a real fight (not a one-shot melt).
+    // The boss scales with the difficulty tier AND the run level: a maxed-out
+    // build (1.5k+ dps) must face a multi-second fight, not a one-shot melt.
     const runLevel = GameManager.instance.run?.level ?? 1;
-    const levelScale = 1 + 0.1 * Math.min(Math.max(0, runLevel - 1), 30);
-    this.maxHealth = Math.round(GAME.boss.health * diff.bossHp * levelScale);
+    const lvl = Math.min(Math.max(0, runLevel - 1), 30);
+    this.maxHealth = Math.round(GAME.boss.health * diff.bossHp * (1 + 0.28 * lvl));
     this.health = this.maxHealth;
+    this.damageScale = 1 + 0.08 * lvl;
     this.projectiles = scene.physics.add.group();
     this.telegraphs = scene.add.graphics();
     this.telegraphs.setDepth(9);
@@ -51,8 +52,11 @@ export class AncientGolem extends Phaser.Physics.Arcade.Image {
     emitEvent("boss-health", { current: this.health, max: this.maxHealth });
   }
 
+  /** Attack value applied to contact hits and projectiles (scaled at spawn). */
+  private damageScale = 1;
+
   get damage(): number {
-    return Math.round(GAME.boss.damage * GameManager.instance.currentDifficulty().bossDmg);
+    return Math.round(GAME.boss.damage * GameManager.instance.currentDifficulty().bossDmg * this.damageScale);
   }
 
   takeDamage(amount: number): void {

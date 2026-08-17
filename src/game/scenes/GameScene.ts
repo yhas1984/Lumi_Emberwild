@@ -474,8 +474,14 @@ export class GameScene extends Phaser.Scene {
           this.player.takeDamage(this.golem!.damage, this.golem!.x, this.golem!.y);
         }
       });
-      this.physics.add.overlap(this.playerProjectiles, this.golem, (projObj) => {
+      // NOTE: sprite first, group second — Phaser swaps the callback
+      // arguments for group-vs-sprite pairs, and a wrong order made the
+      // golem damage and destroy ITSELF on the first projectile touch.
+      this.physics.add.overlap(this.golem, this.playerProjectiles, (golemObj, projObj) => {
         const proj = projObj as Projectile;
+        if (!proj.active || this.golem!.health <= 0) {
+          return;
+        }
         this.golem!.takeDamage(proj.damage);
         this.particles.burst(proj.x, proj.y, 0xffb02e, 4, 130, 0.8);
         proj.destroy();
